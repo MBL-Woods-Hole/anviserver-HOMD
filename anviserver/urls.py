@@ -3,7 +3,7 @@ from django.contrib import admin
 from registration.forms import RegistrationForm
 from registration.backends.simple.views import RegistrationView
 
-from main.views import projects, index, interactive, teams, profile, redirect, settings
+from main.views import projects, index, interactive, teams, profile, redirect, settings, pangenomes
 from main.forms import UserRegForm
 from main import backend
 
@@ -31,7 +31,10 @@ urlpatterns = [
     url(r'^teams/(?P<team_id>\w+)/(?P<team_name>\w+)/members', teams.list_members, name="teams_members"),
     url(r'^teams/(?P<team_id>\w+)/(?P<team_name>\w+)/projects', teams.list_projects, name="teams_projects"),
     url(r'^teams', teams.list_teams, name="teams"),
-
+    
+    url(r'^pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
+    url(r'^(?P<pangenome>\w+)', interactive.show_pangenome_interactive, name="show_pangenome_interactive"),
+    
     url(r'^p/(?P<short_link_key>\w+)', interactive.short_link_redirect, name='short_link_redirect'),
     url(r'^ajax/(?P<username>\w+)/(?P<project_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler),
     url(r'^(?P<username>\w+)/(?P<project_slug>\w+)/download', interactive.download_zip, name="download_zip"),
