@@ -20,11 +20,12 @@ html_files = []
 html_files += glob.glob(os.path.join(os.path.dirname(anvio.__file__), "data/interactive/*.html"))
 
 pattern = re.compile(".*(<script|<link).*(href|src)\=[\'\"]((?!http\:\/\/).+?)\".*")
-
 for html_file in html_files:
     backup_file = os.path.join(os.path.dirname(html_file), "_" + os.path.basename(html_file))
 
     with open(html_file, "r") as f_input:
+        #print('h',html_file)
+        #print('b',backup_file)
         with open(backup_file, "w") as f_output:
             for line in f_input.readlines():
                 result = pattern.match(line)
@@ -33,8 +34,9 @@ for html_file in html_files:
 
                     if parameter_name in src:
                         src = src.split(parameter_name)[0]
-
-                    checksum = md5(src)
+                    
+                    if os.path.isfile(src):
+                        checksum = md5(src)
 
                     pos = line.find(parameter_name)
                     if pos == -1:

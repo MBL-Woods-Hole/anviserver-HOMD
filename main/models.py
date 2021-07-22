@@ -12,6 +12,10 @@ import argparse
 import shutil
 import os
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def generate_random_pk():
     return random.SystemRandom().getrandbits(32)
 
@@ -78,7 +82,9 @@ class Project(models.Model):
             args.fasta_file             = self.get_file_path('fasta.fa'       , default=None)
 
         args.additional_layers      = self.get_file_path('additional-layers.txt', default=None)
-            
+        print('in models: return interactive.Interactive(args)') 
+        # this runs anvio interactive  
+        logger.info("this runs anvio interactive ") 
         return interactive.Interactive(args)
 
     def synchronize_num_states(self, save=False):
