@@ -1,0 +1,58 @@
+{% extends 'index.html' %} {% block title %}HOMD PanGenome List{% endblock %} {% block content %}
+<div class="page-header">
+    <h3>Available HOMD PanGenomes</h3>
+</div>
+<div id="list_pangenomes">
+    {% if pangenomes %}
+     <div class="well">
+        <table id="pangenomes_table" class="table table-hover">
+            <thead>
+                <tr>
+                    <th class="col-md-3">Name</th>
+                    <th class="col-md-2">PAN Filename</th>
+                    <th class="col-md-2">GENOMES Filename</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for pangenome in pangenomes %}
+                <tr>
+                    <td><a href="{% url 'show_pangenome_interactive' pangenome.name %}">{{ pangenome.name }}</a></td>
+                    <td><a href="">{{ pangenome.panfile }}</a></td>
+                    <td><a href="">{{ pangenome.genomesfile }}</a></td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="alert alert-info">
+        There is no pangenome to show here.
+    </div>
+    {% endif %}
+
+</div>
+<br />
+<script>
+$(document).ready(function() {
+    $('#pangenomes_table').DataTable({
+        columnDefs: [{ orderable: false, targets: -1 }],
+        order: [[ 3, "desc" ]],
+        lengthMenu: [[10, 20, 50, 100, -1], [10, 20, 50, 100, "All"]],
+        pageLength: 10,
+    });
+
+    $("#pangenomes_table").on('draw.dt', function() {
+        jQuery("time.timeago").timeago();
+    });
+} );
+
+
+</script>
+{% endblock %}
+{% block header %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.13/datatables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.13/datatables.min.js"></script>
+{% endblock %}

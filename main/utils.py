@@ -42,6 +42,10 @@ def check_write_permission(project, user):
 def get_project(username, project_slug):
     return get_object_or_404(Project, user__username=username, slug=project_slug)
 
+def get_pangenome_files(pangenome_name):
+    
+    return {} #get_object_or_404(Project, user__username=username, slug=project_slug)
+    
 def put_project_file(project_path, file_name, content):
     with open(os.path.join(project_path, file_name), 'wb+') as destination:
         for chunk in content.chunks():

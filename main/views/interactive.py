@@ -38,6 +38,11 @@ def show_interactive(request, username, project_slug):
 
     return render(request, 'interactive.html', {'project': project, 'view_key': view_key})
 
+def show_pangenome_interactive(request, pangenome_name):
+
+    view_key = 'no_view_key'
+    return render(request, 'pangenome_interactive.html', {'pangenome':pangenome_name,'view_key':view_key})
+    
 def show_inspect(request, username, project_slug, inspection_type):
     project = get_project(username, project_slug)
 
