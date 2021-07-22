@@ -1,6 +1,7 @@
 from django import template
 from django.utils.safestring import mark_safe
-from anviserver.settings_secrets import ANALYTICS_SCRIPT_BLOCK
+from anviserver.settings import ANALYTICS_SCRIPT_BLOCK
+#from anviserver.settings_secrets import ANALYTICS_SCRIPT_BLOCK
 
 register = template.Library()
 

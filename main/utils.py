@@ -25,7 +25,7 @@ def check_view_permission(project, user, view_key):
 
 
 def check_write_permission(project, user):
-    if user.is_anonymous():
+    if user.is_anonymous:
         return False
 
     if project.user == user:

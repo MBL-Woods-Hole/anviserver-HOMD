@@ -1,10 +1,11 @@
-from registration.forms import RegistrationFormUniqueEmail
+#from registration.forms import RegistrationForm
+from registration.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django import forms
 
 import re
 
-class UserRegForm(RegistrationFormUniqueEmail):
+class UserRegForm(UserCreationForm):
     username = forms.CharField(max_length=30, required=True, label='Username', help_text="Required. 30 characters or fewer. Letters, digits and _ only.")
 
     fullname = forms.CharField(max_length=100, required=False, label='Full name')

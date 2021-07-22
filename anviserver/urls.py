@@ -1,18 +1,24 @@
 from django.conf.urls import url, include, handler400, handler403, handler404, handler500
 from django.contrib import admin
-from registration.forms import RegistrationFormUniqueEmail
-from registration.backends.default.views import RegistrationView
+from registration.forms import RegistrationForm
+from registration.backends.simple.views import RegistrationView
 
 from main.views import projects, index, interactive, teams, profile, redirect, settings
 from main.forms import UserRegForm
 from main import backend
 
+class MyRegistrationView(RegistrationView):
+        def get_success_url(self, request):
+            return '/'
+            
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     url(r'^accounts/settings/$', settings.show_settings, name="user_settings"),
-    url(r'^accounts/register/$', RegistrationView.as_view(form_class=UserRegForm), {'backend': 'registration.backends.default.DefaultBackend'}, name='registration_register'),
-    url(r'^accounts/', include('registration.backends.default.urls')),
+    url(r'^accounts/register/$', MyRegistrationView.as_view(form_class=UserRegForm), {'backend': 'registration.backends.simple.DefaultBackend'}, name='registration_register'),
+    #url(r'^accounts/register/$', RegistrationView.as_view(form_class=UserRegForm)),
+    
+    url(r'^accounts/', include('registration.backends.simple.urls')),
 
 
     url(r'^(?P<access_type>public|private)/(?P<username>\w+)/(?P<share_name>\w+)', redirect.redirect_view, name="redirect_view"),
@@ -37,7 +43,7 @@ urlpatterns = [
     url(r'^$', index.show_index, name='index'),
 ]
 
-handler400 = index.show_error_page
-handler403 = index.show_error_page
-handler404 = index.show_error_page
-handler500 = index.show_error_page
+# handler400 = index.show_error_page
+# handler403 = index.show_error_page
+# handler404 = index.show_error_page
+# handler500 = index.show_error_page
