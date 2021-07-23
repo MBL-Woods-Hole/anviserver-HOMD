@@ -33,7 +33,7 @@ urlpatterns = [
     url(r'^teams', teams.list_teams, name="teams"),
     
     url(r'^pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
-    url(r'^(?P<pangenome>\w+)', interactive.show_pangenome_interactive, name="show_pangenome_interactive"),
+    #url(r'^(?P<pangenome>\w+)', interactive.show_pangenome_interactive, name="show_pangenome_interactive"),
     
     url(r'^p/(?P<short_link_key>\w+)', interactive.short_link_redirect, name='short_link_redirect'),
     url(r'^ajax/(?P<username>\w+)/(?P<project_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler),

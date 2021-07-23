@@ -13,9 +13,13 @@ from anvio.bottleroutes import BottleApplication
 import zipfile
 import hashlib
 import json
-import os
+import os,sys
 import io
 
+import logging
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.StreamHandler(sys.stdout))
+logger.setLevel(logging.DEBUG)
 
 def short_link_redirect(request, short_link_key):
     project = get_object_or_404(Project, short_link_key=short_link_key)
@@ -28,7 +32,8 @@ def short_link_redirect(request, short_link_key):
 
 def show_interactive(request, username, project_slug):
     project = get_project(username, project_slug)
-
+    
+    logger.debug('in show interactive',project)
     view_key = request.GET.get('view_key')
     if view_key is None:
         view_key = "no_view_key"
@@ -37,9 +42,10 @@ def show_interactive(request, username, project_slug):
         raise Http404
 
     return render(request, 'interactive.html', {'project': project, 'view_key': view_key})
+    return ''
 
 def show_pangenome_interactive(request, pangenome):
-
+    logger.debug('in show pangenome interactive')
     view_key = 'no_view_key'
     return render(request, 'pangenome_interactive.html', {'pangenome':pangenome,'view_key':view_key})
     
@@ -87,6 +93,7 @@ def download_zip(request, username, project_slug):
 
 
 def ajax_handler(request, username, project_slug, view_key, requested_url):
+    logger.debug('in interactive.py ajax_handler')
     if not request.is_ajax():
         raise Http404
 

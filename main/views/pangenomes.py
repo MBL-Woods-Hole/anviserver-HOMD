@@ -1,4 +1,4 @@
-import os
+import os,sys
 import re
 import shutil
 import argparse
@@ -18,6 +18,10 @@ from anvio import dbops
 from anvio.tables import miscdata, collections
 from anvio.utils import get_TAB_delimited_file_as_dictionary
 
+import logging
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.StreamHandler(sys.stdout))
+logger.setLevel(logging.DEBUG)
 
 def list_pangenomes(request):
     #action = request.POST.get('action')
@@ -29,11 +33,14 @@ def list_pangenomes(request):
     for d in lst:  # use the dirname as pg name
         obj = {'name':d}
         pfile = glob.glob(os.path.join(settings.PANGENOME_DATA_DIR,d)+'/*PAN.db')
+        #if len(pfile) > 0:
         panfile = os.path.basename(pfile[0]) # take only the first one
-        gfile = glob.glob(os.path.join(settings.PANGENOME_DATA_DIR,d)+'/*GENOMES.db')
-        genomesfile = os.path.basename(gfile[0])
         obj['panfile'] = panfile
+        gfile = glob.glob(os.path.join(settings.PANGENOME_DATA_DIR,d)+'/*GENOMES.db')
+        #if len(gfile) > 0:
+        genomesfile = os.path.basename(gfile[0])
         obj['genomesfile'] =  genomesfile
+        #if 'panfile' in obj and 'genomesfile' in obj:
         pgobj.append(obj)
         
     
