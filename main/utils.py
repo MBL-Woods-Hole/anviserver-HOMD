@@ -1,4 +1,4 @@
-from main.models import Project, ProjectLink, ProjectTeam, Team
+from main.models import Project, Pangenome, ProjectLink, ProjectTeam, Team
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
@@ -42,9 +42,9 @@ def check_write_permission(project, user):
 def get_project(username, project_slug):
     return get_object_or_404(Project, user__username=username, slug=project_slug)
 
-def get_pangenome_files(pangenome_name):
+def get_pangenome(pangenome_name):
+    return Pangenome(pangenome_name)
     
-    return {} #get_object_or_404(Project, user__username=username, slug=project_slug)
     
 def put_project_file(project_path, file_name, content):
     with open(os.path.join(project_path, file_name), 'wb+') as destination:

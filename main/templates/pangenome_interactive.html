@@ -4,7 +4,7 @@
 <html lang="en">
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<meta name="description" content="{{ project.get_description }}">
+		<meta name="description" content="{{ pangenome.get_description }}">
 		<title>{{ pangenome.name }} - Anvi'o Server</title>
 		<style>
 			html, body, iframe {
@@ -18,7 +18,7 @@
 		<link rel="icon" type="image/png" href="{% static 'img/logo.png' %}"> 
 	</head>
 	<body>
-		<iframe src="/static/interactive/index.html?request_prefix=/ajax/{{ pangenome }}/{{ view_key }}"></iframe>
+		<iframe src="/static/interactive/index.html?request_prefix=/ajax_pangenome/{{ pangenome }}/{{ view_key }}"></iframe>
 	{% analytics_script_block %}
 	</body>
 </html>

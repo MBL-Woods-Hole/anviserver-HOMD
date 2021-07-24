@@ -20,6 +20,35 @@ logger.setLevel(logging.DEBUG)
 def generate_random_pk():
     return random.SystemRandom().getrandbits(32)
 
+class Pangenome:
+    def __init__(self, name):
+        self.name = name
+    
+    def get_path(self):
+        return settings.PANGENOME_DATA_DIR
+        
+    def get_file_path(self, filename, genome):
+        full_path = os.path.join(self.get_path(), genome, filename)
+
+        if os.path.exists(full_path):
+            return full_path
+        
+        return default
+        
+    def get_interactive(self, read_only=True):
+        args = argparse.Namespace()
+        args.read_only = read_only
+        args.mode = 'pan'
+        args.pan_db                 = self.get_file_path('PAN.db', self.name)
+        args.genomes_storage        = self.get_file_path('GENOMES.db', self.name)
+        args.skip_init_functions    = True
+        
+#         args.additional_layers      = self.get_file_path('additional-layers.txt', default=None)
+        logger.debug('in models(Pangenome): returning interactive.Interactive(args)') 
+        # this runs anvio interactive  
+        
+        return interactive.Interactive(args)
+        
 class Project(models.Model):
     user = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
@@ -83,7 +112,7 @@ class Project(models.Model):
             args.fasta_file             = self.get_file_path('fasta.fa'       , default=None)
 
         args.additional_layers      = self.get_file_path('additional-layers.txt', default=None)
-        logger.debug('in models: return interactive.Interactive(args)') 
+        logger.debug('in models(Project): return interactive.Interactive(args)') 
         # this runs anvio interactive  
         
         return interactive.Interactive(args)

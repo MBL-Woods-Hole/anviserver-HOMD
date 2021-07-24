@@ -12,7 +12,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, Http404
 from django.conf import settings
 from main.models import Project, Team, TeamUser, ProjectTeam, ProjectLink
-from main.utils import get_pangenome_files
+from main.utils import get_pangenome
 
 from anvio import dbops
 from anvio.tables import miscdata, collections
@@ -52,7 +52,7 @@ def list_pangenomes(request):
 
 
 def details_pangenome(request, pangenome_name):
-    pangenome = get_pangenome_files( pangenome_name)
+    pangenome = get_pangenome( pangenome_name)
 
     files = []
     for f in os.listdir(pangenome.get_path()):
