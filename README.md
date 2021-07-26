@@ -1,6 +1,7 @@
 # Installing anvi'o and anvi'server
 **NOTE this is a clone and edit of anviserver (https://github.com/merenlab/anviserver) to run on the HOMD AWS Site: https://anviserver.homd.info
-The instructions below are to setup **both anvi'o and anvi'server codebase on the same computer**. This is necessary since anvi'server uses anvi'o modules to display things.
+
+**The instructions below are to setup **both anvi'o and anvi'server codebase on the same computer**. This is necessary since anvi'server uses anvi'o modules to display things.
 
 **Taking care of anvi'o**. To have anvi'o running on your system, please follow the instructions on [this installation tutorial](https://merenlab.org/2016/06/26/installation-v2/#5-follow-the-active-development-youre-a-wizard-arry). These instructions will enable you to setup anvi'o in a conda environment that has all the necessary dependencies and tracks the active development branch of anvi'o.
 
