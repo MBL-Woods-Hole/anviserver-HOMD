@@ -108,10 +108,10 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     
     bottle_request = utils.MockBottleRequest(django_request=request)
     bottle_response = utils.MockBottleResponse()
-    interactive = None
+    #interactive = None
     
-    if not requested_url.startswith('data/news'):
-        interactive = pangenome.get_interactive(read_only=read_only) 
+    #if not requested_url.startswith('data/news'):
+    interactive = pangenome.get_interactive(read_only=read_only) 
       
     bottleapp = BottleApplication(interactive, bottle_request, bottle_response)
     
