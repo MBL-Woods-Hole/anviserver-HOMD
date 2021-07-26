@@ -199,8 +199,8 @@ def ajax_handler(request, username, project_slug, view_key, requested_url):
 
     interactive = None
     
-    if not requested_url.startswith('data/news'):
-        interactive = project.get_interactive(read_only=read_only)
+    #if not requested_url.startswith('data/news'):
+    interactive = project.get_interactive(read_only=read_only)
 
     bottleapp = BottleApplication(interactive, bottle_request, bottle_response)
 
