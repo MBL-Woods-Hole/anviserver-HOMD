@@ -1,6 +1,7 @@
 # Installing anvi'o and anvi'server
+**NOTE this is a clone and edit of anviserver (https://github.com/merenlab/anviserver) to run on the HOMD AWS Site: https://anviserver.homd.info
 
-The instructions below are to setup **both anvi'o and anvi'server codebase on the same computer**. This is necessary since anvi'server uses anvi'o modules to display things.
+**The instructions below are to setup **both anvi'o and anvi'server codebase on the same computer**. This is necessary since anvi'server uses anvi'o modules to display things.
 
 **Taking care of anvi'o**. To have anvi'o running on your system, please follow the instructions on [this installation tutorial](https://merenlab.org/2016/06/26/installation-v2/#5-follow-the-active-development-youre-a-wizard-arry). These instructions will enable you to setup anvi'o in a conda environment that has all the necessary dependencies and tracks the active development branch of anvi'o.
 
@@ -21,10 +22,13 @@ git clone https://github.com/merenlab/anviserver
 pip install -r anviserver/requirements.txt
 
 # and finally install nginx, which will be used to serve anvi'server:
+# nginx does't have to be run inside the coda environment if it is already installed on your system.
 conda install -y nginx
 ```
-
-Copy-pasta the following lines into your terminal window to update the conda activation file for anvi'o to include point the right `PYTHONPATH` for anvi'server (the contents of this file is run every time the conda environment `anvi-dev` is initiated, with this update, it will also take care of anvi'server buisness):
+If you want the latest anvi'server and anvio development code on your system each time you activate
+your conda envirnment then create a new bash shell script (or edit it if you created one during the install of anvo', see:
+https://merenlab.org/2016/06/26/installation-v2/#linking-conda-environment-and-the-codebase)  
+Copy-pasta (or edit ${CONDA_PREFIX}/etc/conda/activate.d/anvio.sh) the following lines into your terminal window to update the conda activation file for anvi'o to include point the right `PYTHONPATH` for anvi'server (the contents of this file is run every time the conda environment `anvi-dev` is initiated, with this update, it will also take care of anvi'server buisness):
 
 ``` bash
 cat <<EOF >${CONDA_PREFIX}/etc/conda/activate.d/anvio.sh
@@ -33,7 +37,10 @@ cat <<EOF >${CONDA_PREFIX}/etc/conda/activate.d/anvio.sh
 # lines ensure (1) Python knows where to find anvi'server libraries and
 # (2) anvi'server code is also updated from GitHub every time the anvi'o
 # environment is activated:
-export PYTHONPATH=\$PYTHONPATH:~/github/anviserver/
+export PYTHONPATH=\$PYTHONPATH:~/github/anvio/:~/github/anviserver/
+export PATH=\$PATH:~/github/anvio/bin:~/github/anvio/sandbox
+echo -e "\033[1;34mUpdating from anvi'o GitHub \033[0;31m(press CTRL+C to cancel)\033[0m ..."
+cd ~/github/anvio && git pull && cd -
 echo -e "\033[1;31mUpdating from anvi'server GitHub \033[0;31m(press CTRL+C to cancel)\033[0m ..."
 cd ~/github/anviserver && git pull && cd -
 EOF
@@ -59,13 +66,16 @@ Since both `anviserver/settings.py` and `anviserver/secrets.py` are mentioned in
 
 Edit `anviserver/settings.py`:
 
-* Change`DEBUG=True` to `DEBUG=False` (if necessary)
+* Change`DEBUG=True` to `DEBUG=False` (if it is ready for a production environment)
 * In SMTP settings section, change `EMAIL_HOST` and `EMAIL_HOST_USER`. You may need to change other values if you want to use any other SMTP host than Gmail. Makes sure the password is stored in `anviserver/secrets.py`.
 * Find `# Sentry settings` section and remove it if you do not want to use error tracking and reporting service [Sentry](https://sentry.io/). If you want to keep it you need to open new account and get an API key, later we will put in `anviserver/secrets.py`.
 
 # Setting up Django
 
-Here you will setup Django.
+Here you will setup Django which is the heart of anvi'server and first used django version 1.9
+At the time of this writing (July-2021) I found that the lastest django==3.2 works but some
+edits are needed in the django code.
+
 
 First, delete the following symlink:
 
@@ -89,6 +99,8 @@ python manage.py createsuperuser
 
 # Running Gunicorn
 
+Gunicorn is a Python based HTTP server which you will use to serve the django anvi'server app.
+
 Create a copy of the gunicorn config file from its template, and take a look at the contents:
 
 ```
@@ -98,10 +110,30 @@ cp gunicorn.conf-TEMPLATE.py gunicorn.conf.py
 and if/when you are satisfied with what it shows, run it:
 
 ```
+gunicorn -c gunicorn.conf.py anviserver.wsgi:application
+```
+
+When you are done debugging run it as a daemon:
+
+```
 gunicorn -c gunicorn.conf.py anviserver.wsgi:application --daemon
 ```
 
+To see if the daemon is running:
+
+```
+ps aux|grep gunicorn
+```
+
+To stop the daemon:
+
+```
+killall gunicorn
+```
+
 # Run Nginx
+
+Nginx is needed on top of gunicorn to allow anvi'server to find the anvio installation on your system.
 
 Create a copy of the Nginx config file from its template, and take a look at the contents:
 
@@ -123,7 +155,12 @@ Finally, replace the system default config file for ngix with the file you just 
 sudo cp nginx.conf /etc/nginx/sites-enabled/default
 ```
 
-And start/restart ngix:
+Some other locations that the nginx config file(s) might reside on your system:
+/usr/local/etc/nginx/*.conf
+/etc/nginx/conf.d/*.conf
+Any file with a .conf extension will get read by nginx 
+
+And start/restart nginx:
 
 ```
 sudo service nginx restart
@@ -147,7 +184,7 @@ To reflect changes in the anvi'o or anvi'server codebase, you may need to update
 
 Then run `python reset_cache.py`, which is a script that finds every HTML file and appends `?hash=<file hash>` to every static resource (js, css etc.). This will force browsers to not rely on their cache for a given anvi'server project, but request new information.
 
-Finally, restart the gunicorn
+Finally, stop and restart the gunicorn daemon in one line:
 
 ```
 killall gunicorn && gunicorn -c gunicorn.conf.py anviserver.wsgi:application --daemon
