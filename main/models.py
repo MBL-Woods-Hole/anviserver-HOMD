@@ -42,6 +42,9 @@ class Pangenome:
         args.pan_db                 = self.get_file_path('PAN.db', self.name)
         args.genomes_storage        = self.get_file_path('GENOMES.db', self.name)
         args.skip_init_functions    = False
+        args.additional_layers      = None
+        args.items_order            = None
+        
         
 #         args.additional_layers      = self.get_file_path('additional-layers.txt', default=None)
         logger.debug('args')
@@ -115,7 +118,9 @@ class Project(models.Model):
             args.fasta_file             = self.get_file_path('fasta.fa'       , default=None)
 
         args.additional_layers      = self.get_file_path('additional-layers.txt', default=None)
-        logger.debug('in models(Project): return interactive.Interactive(args)') 
+        logger.debug('args')
+        logger.debug(args)
+        logger.debug('in models(Project): returning interactive.Interactive(args)') 
         # this runs anvio interactive  
         
         return interactive.Interactive(args)

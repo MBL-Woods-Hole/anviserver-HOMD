@@ -113,9 +113,7 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     
     bottle_request = utils.MockBottleRequest(django_request=request)
     bottle_response = utils.MockBottleResponse()
-    #interactive = None
     
-    #if not requested_url.startswith('data/news'):
     interactive = pangenome.get_interactive(read_only=read_only) 
       
     bottleapp = BottleApplication(interactive, bottle_request, bottle_response)
@@ -174,12 +172,12 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
                              "collection": collection_dict,
                              "samples": interactive.p_meta['samples'] if interactive.mode in ['full', 'refine'] else [],
                              "load_full_state": True,
-                            #  "project": {
-#                                 'username': project.user.username,
+                             "project": {
+                                 'username': 'guest',
 #                                 'fullname': project.user.userprofile.fullname if project.user.userprofile.fullname else project.user.username,
 #                                 'user_avatar': gravatar(project.user.email),
-#                                 'download_zip_url': download_zip_url
-#                                 }
+                                  'download_zip_url': download_zip_url
+                                 }
                             })
 
     
