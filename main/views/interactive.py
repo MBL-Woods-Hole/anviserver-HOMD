@@ -31,10 +31,15 @@ def short_link_redirect(request, short_link_key):
 
 
 def show_interactive(request, username, project_slug):
+    logger.debug('IN show interactive')
+    
+    
     project = get_project(username, project_slug)
     
-    logger.debug('in show interactive')
+    logger.debug('in show interactive -project:')
     logger.debug(project)
+    logger.debug('in show interactive -request:')
+    logger.debug(request)
     view_key = request.GET.get('view_key')
     if view_key is None:
         view_key = "no_view_key"
@@ -42,14 +47,14 @@ def show_interactive(request, username, project_slug):
     if not check_view_permission(project, request.user, view_key):
         raise Http404
 
-    return render(request, 'interactive.html', {'project': project, 'view_key': view_key})
+    return render(request, 'interactive.html', {'project': project, 'view_key': view_key, 'is_homd_pangenome':False})
     return ''
 
 def show_pangenome_interactive(request, pangenome):
     logger.debug('in show pangenome interactive')
     logger.debug('pangenome is '+pangenome)
     view_key = 'no_view_key'
-    return render(request, 'pangenome_interactive.html', {'pangenome':pangenome,'view_key':view_key})
+    return render(request, 'interactive.html', {'pangenome':pangenome,'view_key':view_key, 'is_homd_pangenome':True})
     
 def show_inspect(request, username, project_slug, inspection_type):
     project = get_project(username, project_slug)

@@ -41,15 +41,18 @@ class Pangenome:
         args.mode = 'pan'
         args.pan_db                 = self.get_file_path('PAN.db', self.name)
         args.genomes_storage        = self.get_file_path('GENOMES.db', self.name)
-        args.skip_init_functions    = True
+        args.skip_init_functions    = False
         
 #         args.additional_layers      = self.get_file_path('additional-layers.txt', default=None)
+        logger.debug('args')
+        logger.debug(args)
         logger.debug('in models(Pangenome): returning interactive.Interactive(args)') 
         # this runs anvio interactive  
         
         return interactive.Interactive(args)
         
 class Project(models.Model):
+    
     user = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     slug = models.CharField(max_length=100)

@@ -1,0 +1,98 @@
+.md-editor {
+    height: calc(100% - 50px);
+}
+
+.md-editor textarea {
+    height: 100%;
+    padding: 6px;
+    font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+    font-size: 11px;
+    outline: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.md-preview {
+    height: 100% !important;
+    min-height: 0px !important;
+    overflow: scroll;
+    min-width: 100%;
+    padding: 6px;
+}
+
+.md-editor .btn-group {
+    margin-bottom: 5px;
+}
+
+.md-preview h1 {
+    font-size: 36px;
+}
+
+.md-preview h2 {
+    font-size: 30px;
+}
+
+.md-preview h3 {
+    font-size: 24px;
+}
+
+.md-preview h3 {
+    font-size: 18px;
+}
+
+.md-preview h4 {
+    font-size: 14px;
+}
+
+.md-preview a {
+    font-size: inherit;
+}
+
+.item-link {
+    color: #337ab7;
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.item-link .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    opacity 0.9s;
+}
+
+.item-link .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -4px;
+    border-width: 4px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.item-link:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.item-link .tooltiptext>span {
+    color: white;
+    font-size: 10px;
+}
+
+.item-link .tooltiptext>span:hover {
+    text-decoration: underline;
+}

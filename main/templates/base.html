@@ -19,6 +19,18 @@
 
 <body>
     <!-- Static navbar -->
+    <!-- 
+<style>
+    .navbar-brand {
+    padding-top: 4px;
+}
+    .navbar-brand > img {
+    width: 42px;
+    height: 42px;
+}
+    </style>
+ -->
+ <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
     <nav class="navbar navbar-default navbar-lg ">
         <div class="container">
             <div class="navbar-header">
@@ -29,6 +41,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'img/logo.png' %}" alt="Home" /></a>
+            
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">

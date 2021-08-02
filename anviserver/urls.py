@@ -42,7 +42,9 @@ urlpatterns = [
     re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome),
     re_path(r'^(?P<username>\w+)/(?P<project_slug>\w+)/download', interactive.download_zip, name="download_zip"),
     re_path(r'^(?P<username>\w+)/(?P<project_slug>\w+)/(?P<inspection_type>\w+)', interactive.show_inspect, name="show_inspect"),
-    re_path(r'^(?P<username>\w+)/(?P<project_slug>\w+)', interactive.show_interactive, name="show_interactive"),
+    
+    #re_path(r'^(?P<pangenome_slug>\w+)/is_homd_pangenome', interactive.show_interactive, {'is_homd_pangenome': True}, name="show_interactive"),
+    re_path(r'^(?P<username>\w+)/(?P<project_slug>\w+)', interactive.show_interactive,  name="show_interactive"),
     
     path('pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
     re_path(r'^(?P<pangenome>\w+)', interactive.show_pangenome_interactive, name="show_pangenome_interactive"),

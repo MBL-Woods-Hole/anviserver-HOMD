@@ -189,7 +189,10 @@ Finally, stop and restart the gunicorn daemon in one line:
 ```
 killall gunicorn && gunicorn -c gunicorn.conf.py anviserver.wsgi:application --daemon
 ```
-
+or
+```
+gunicorn -c gunicorn.conf.py anviserver.wsgi:application --reload
+```
 # License
 
 This project is licensed under the terms of the [GNU Affero General Public License v3](https://www.gnu.org/licenses/agpl-3.0.en.html).
