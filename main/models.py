@@ -41,7 +41,7 @@ class Pangenome:
         args.mode = 'pan'
         args.pan_db                 = self.get_file_path('PAN.db', self.name)
         args.genomes_storage        = self.get_file_path('GENOMES.db', self.name)
-        args.skip_init_functions    = False
+        args.skip_init_functions    = True
         args.additional_layers      = None
         args.items_order            = None
         
