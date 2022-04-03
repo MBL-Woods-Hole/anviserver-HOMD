@@ -1,4 +1,43 @@
 {% extends 'index.html' %} {% block title %}HOMD PanGenome List{% endblock %} {% block content %}
+<style>
+table{
+  width:100%;
+  cell-spacing:0px;
+}
+td{
+  border:1px solid;
+  padding:10px;
+  cell-spacing:0px;
+  cell-padding:0px;
+}
+.popover-item{
+  position: relative;
+}
+.popover-content{
+  display:none;
+  position: absolute;
+  left: 105%;
+  display: none;
+  font-size: 1.2rem;
+  background-color: rgba(230, 230, 230, 1);
+  padding: 10px 20px;
+  border-radius: 16px;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+  font-weight: normal;
+  z-index:111;
+  width:350px;
+}
+.popover-content:hover{
+  display:none!important;
+}
+.popover-item:hover .popover-content{
+  display: block;
+  text-align:left;
+}
+.popover-content h1{
+  font-size:18px;
+}
+</style>
 <div class="page-header">
     <h3>Available HOMD PanGenomes</h3>
 </div>
@@ -8,18 +47,36 @@
         <table id="pangenomes_table" class="table table-hover">
             <thead>
                 <tr>
-                    <th class="col-md-3">Name</th>
-                    <th class="col-md-2">PAN Filename</th>
-                    <th class="col-md-2">GENOMES Filename</th>
+                    <th class="col-md-3x">Name</th>
+                    <th class="col-md-2x">Open Anvi'o</th>
+                    <th class="col-md-2x">Download Files</th>
+                    
                     
                 </tr>
             </thead>
             <tbody>
                 {% for pangenome in pangenomes %}
                 <tr>
-                    <td><a href="{% url 'show_pangenome_interactive' pangenome.name %}">{{ pangenome.name }}</a></td>
-                    <td>{{ pangenome.panfile }}</td>
-                    <td>{{ pangenome.genomesfile }}</td>
+                    <td class="popover-item">
+                    {{ pangenome.name }}
+                    <div class="popover-content">
+		              <h1>Pangenome: {{ pangenome.name }}</h1>
+		              <p>Description:<br>{% autoescape off %}{{ pangenome.description }}{% endautoescape %}</p>
+                    </div>
+                    </td>
+                    <td class="popover-item" align='center'><a href="{% url 'show_pangenome_interactive' pangenome.name %}">open</a>
+                    <div class="popover-content">
+		              <h1>Pangenome: {{ pangenome.name }}</h1>
+		              <p>Description:<br>{% autoescape off %}{{ pangenome.description }}{% endautoescape %}</p>
+                    </div>
+                    </td>
+                    <td class="popover-item" align='center'><a href="{% url 'download_pangenome_zip' pangenome.name %}">download</a>
+                    <div class="popover-content">
+		              <h1>Pangenome: {{ pangenome.name }}</h1>
+		              <p>Description:<br>{% autoescape off %}{{ pangenome.description }}{% endautoescape %}</p>
+                    </div>
+                    </td>
+                    
                     
                 </tr>
                 {% endfor %}
@@ -36,7 +93,35 @@
 </div>
 <br />
 <script>
-$(document).ready(function() {
+
+$(document).ready(function(){
+
+   
+    //var jqeBsTooltip = $.fn.tooltip.noConflict();
+    //$.fn.tlp = jqeBsTooltip;
+   //  $(".my_tt").on('mousemove', function(e) {
+//         $(".my_tt").css({top: e.pageY, left: e.pageX });
+//         $('[data-toggle="tooltip"]').tooltip('show')
+//     })
+//     $(".my_tt").on('mouseleave', function(e) {
+//         $('[data-toggle="tooltip"]').tooltip('hide')
+//     })
+
+   //  $(".my_tt").tooltip({
+//        track:true,
+//        "html": true,
+//        "position":{
+//            my: "left+15 center", 
+//            at: "right center"}
+//        
+//        });
+    //$('#pangenomes_table tr').mousemove(function(e) { 
+  //$('.tooltip').css('left', e.pageX + 5).css('top', e.pageY - 25).css('display', 'block');
+//})
+   //  $('.hasTooltip').tooltip({
+//       track: true
+//     });
+      
     $('#pangenomes_table').DataTable({
         columnDefs: [{ orderable: false, targets: -1 }],
         order: [],
@@ -44,9 +129,52 @@ $(document).ready(function() {
         pageLength: 10,
     });
 
+    
    
-} );
+   
+});
+// $( document ).on( "mousemove", function( event ) {
+//   $( "#log" ).text( "pageX: " + event.pageX + ", pageY: " + event.pageY );
+//   $( ".hasTooltip" ).css({
+//     "left" : event.pageX,
+//     "top" : event.pageY
+//   });
+// });
+/* Script for popover positioning */
+(function(selector, horizontalOffset, verticalOffset) {
+  var items;
 
+  selector = selector || '.popover-item';
+  horizontalOffset = horizontalOffset || 5;
+  verticalOffset = verticalOffset || 5;
+
+  items = document.querySelectorAll(selector);
+  items = Array.prototype.slice.call(items);
+
+  items.forEach(function(item) {
+	// Every time the pointer moves over the element the
+	//  CSS-rule in overwritten with new values for
+	//  top and left.
+	item.addEventListener('mousemove', function(e) {
+	  let countCssRules = document.styleSheets[0].cssRules.length;
+	  var rightSpace = document.body.clientWidth - e.pageX;
+	  if( rightSpace > 300 ){
+		var newRule = selector +
+		':hover .popover-content {  ' +
+					   'right:auto; left: ' + (horizontalOffset + e.offsetX) + 'px; ' +
+					   'top: ' +  (e.offsetY + verticalOffset) + 'px; }';
+	  }else{
+		 var newRule = selector +
+		':hover .popover-content {  ' +
+					   'left:auto; right: ' + (item.offsetWidth - e.offsetX) + 'px; ' +
+					   'top: ' +  (e.offsetY + verticalOffset) + 'px; }';
+	  }
+
+
+	  document.styleSheets[0].insertRule(newRule, countCssRules);
+	});
+  });
+})('.popover-item', 10, 5);
 
 </script>
 {% endblock %}

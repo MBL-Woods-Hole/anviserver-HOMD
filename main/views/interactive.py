@@ -55,6 +55,7 @@ def show_pangenome_interactive(request, pangenome):
     logger.debug('pangenome is '+pangenome)
     view_key = 'no_view_key'
     return render(request, 'interactive.html', {'pangenome':pangenome,'view_key':view_key, 'is_homd_pangenome':True})
+
     
 def show_inspect(request, username, project_slug, inspection_type):
     project = get_project(username, project_slug)
@@ -78,6 +79,7 @@ def show_inspect(request, username, project_slug, inspection_type):
                                            'html_page': html_page
                                            })
 
+
 def download_zip(request, username, project_slug):
     project = get_project(username, project_slug)
 
@@ -100,7 +102,7 @@ def download_zip(request, username, project_slug):
 
 def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     logger.debug('in interactive.py ajax_handler_pangenome')
-    logger.debug('pangenome '+pangenome_slug)
+    logger.debug('pangenome slug: '+pangenome_slug) # just name of pangenome
     logger.debug('view_key '+view_key)
     logger.debug('requested_url '+requested_url)
     username = 'guest'
@@ -119,9 +121,9 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     bottleapp = BottleApplication(interactive, bottle_request, bottle_response)
     
     if requested_url.startswith('data/init'):
-        download_zip_url = reverse('download_zip', args=[username, pangenome_slug])
-        if view_key != 'no_view_key':
-            download_zip_url += '?view_key=' + view_key
+        # download_zip_url = reverse('download_zip', args=[username, pangenome_slug])
+#         if view_key != 'no_view_key':
+#             download_zip_url += '?view_key=' + view_key
 
         default_view = interactive.default_view
         default_order = interactive.p_meta['default_item_order']
@@ -176,7 +178,7 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
                                  'username': 'guest',
 #                                 'fullname': project.user.userprofile.fullname if project.user.userprofile.fullname else project.user.username,
 #                                 'user_avatar': gravatar(project.user.email),
-                                  'download_zip_url': download_zip_url
+                                  'download_zip_url': ''  #download_zip_url
                                  }
                             })
 
