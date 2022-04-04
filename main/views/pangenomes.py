@@ -2,6 +2,7 @@ import os,sys
 import re
 import shutil
 import argparse
+import enum
 import datetime
 import zipfile
 import io
@@ -32,22 +33,27 @@ def list_pangenomes(request):
     #import glob
     #read dir settings.PANGENOME_DATA_DIR
     pgobj=[]
-    lst = os.listdir(settings.PANGENOME_DATA_DIR)
+    
+    lst = sorted(os.listdir(settings.PANGENOME_DATA_DIR))
     for d in lst:  # use the dirname as pg name
-        obj = {'name':d}
+        #logger.debug('LST '+d)
+        sum_bytes = 0
+        obj = {'name':d,'size':0}
+        path = os.path.join(settings.PANGENOME_DATA_DIR, d)
+        obj['path'] = path
         #pfile = os.path.join(settings.PANGENOME_DATA_DIR,d,'PAN.db')
         #if len(pfile) > 0:
         #panfile = os.path.basename(pfile[0]) # take only the first one
         obj['panfile'] = 'PAN.db' #pfile
-        
+        sum_bytes += os.path.getsize(os.path.join(path, obj['panfile']))
         #gfile = os.path.join(settings.PANGENOME_DATA_DIR,d,'GENOMES.db')
         #genomesfile = os.path.basename(gfile[0])
         obj['genomesfile'] =  'GENOMES.db' #gfile
-        
+        sum_bytes += os.path.getsize(os.path.join(path, obj['genomesfile']))
         #dfile = os.path.join(settings.PANGENOME_DATA_DIR,d,'description.txt')
         #descfile = os.path.basename(dfile[0])
-        obj['description'] =  read_file(request, os.path.join(settings.PANGENOME_DATA_DIR, d,'description.txt')) #'description.txt' #dfile
-        obj['path'] =   os.path.join(settings.PANGENOME_DATA_DIR, d)
+        obj['description'] =  read_file(request, os.path.join(path,'description.txt')) #'description.txt' #dfile
+        obj['size'] = round(convert_unit(sum_bytes, SIZE_UNIT.MB),2)
         pgobj.append(obj)
         
     
@@ -57,6 +63,23 @@ def list_pangenomes(request):
     }
     return render(request, 'pangenomes/list.html', context)
 
+# Enum for size units
+class SIZE_UNIT(enum.Enum):
+   BYTES = 1
+   KB = 2
+   MB = 3
+   GB = 4
+       
+def convert_unit(size_in_bytes, unit):
+   """ Convert the size from bytes to other units like KB, MB or GB"""
+   if unit == SIZE_UNIT.KB:
+       return size_in_bytes/1024
+   elif unit == SIZE_UNIT.MB:
+       return size_in_bytes/(1024*1024)
+   elif unit == SIZE_UNIT.GB:
+       return size_in_bytes/(1024*1024*1024)
+   else:
+       return size_in_bytes
 def read_file(request, file_path):
     f = open(file_path, 'r')
     file_content = f.read()
