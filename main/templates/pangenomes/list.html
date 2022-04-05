@@ -74,13 +74,13 @@ td{
                     </div>
                     </td>
                     
-                    <td class="popover-item" align='center'><a href="{% url 'show_pangenome_interactive' pangenome.name %}">open</a>
+                    <td class="popover-item" align='center'><a href="{% url 'show_pangenome_interactive' pangenome.name %}">Anvi'o</a>
                     <div class="popover-content">
 		              <h1>Pangenome: {{ pangenome.name }}</h1>
 		              <p>Description:<br>{% autoescape off %}{{ pangenome.description }}{% endautoescape %}</p>
                     </div>
                     </td>
-                    <td class="popover-item" align='center'><a href="{% url 'download_pangenome_zip' pangenome.name %}">download</a>
+                    <td class="popover-item" align='center'><a href="{% url 'download_pangenome_zip' pangenome.name %}">download &#8595;</a>
                     <div class="popover-content">
 		              <h1>Pangenome: {{ pangenome.name }}</h1>
 		              <p>Description:<br>{% autoescape off %}{{ pangenome.description }}{% endautoescape %}</p>
