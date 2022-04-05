@@ -1,3 +1,8 @@
+conda activate anvio
+python manage.py makemigrations
+python manage.py migrate
+gunicorn -c gunicorn.conf.py anviserver.wsgi:application --daemon
+
 # Installing anvi'o and anvi'server
 **NOTE this is a clone and edit of anviserver (https://github.com/merenlab/anviserver) to run on the HOMD AWS Site: https://anviserver.homd.info
 
