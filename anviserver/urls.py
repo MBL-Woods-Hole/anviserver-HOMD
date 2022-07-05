@@ -35,7 +35,7 @@ urlpatterns = [
     re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome),
      
     path('pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
-    path('anvioserver/pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
+    path('anviserver/pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
     path('pangenomes/<pangenome>', interactive.show_pangenome_interactive, name="show_pangenome_interactive"),
     path('pangenomes/<pangenome>/download', pangenomes.download_pangenome_zip, name="download_pangenome_zip"),
    
