@@ -110,7 +110,7 @@ def anvi_display_pan(request, pangenome):
     logger.debug('IN TEST1 ')
     print('IN TEST2')
     pan_db           = os.path.join('pangenomes',pangenome,'PAN.db')      #self.get_file_path('PAN.db', self.name)
-    genome_storage   = os.path.join('pangenomes',pangenome,'GENOMES.db')  #self.get_file_path('GENOMES.db', self.name)
+    genomes_storage   = os.path.join('pangenomes',pangenome,'GENOMES.db')  #self.get_file_path('GENOMES.db', self.name)
     pgobj=[]
     
     lst = sorted(os.listdir(settings.PANGENOME_DATA_DIR))
@@ -143,10 +143,10 @@ def anvi_display_pan(request, pangenome):
         'pangenomes': pgobj
     }
     #  nohup /path/to/your/script.sh > /dev/null 2>&1 &
-    #cmd = "anvi-display-panAV -p "+pan_db+" -g "+genome_storage+" -I "+settings.PAN_IP_ADDRESS
+    #cmd = "anvi-display-panAV -p "+pan_db+" -g "+genomes_storage+" -I "+settings.PAN_IP_ADDRESS
     params = get_default_display_params()
     params['pan_db'] = pan_db
-    params['genome_storage'] = genome_storage
+    params['genomes_storage'] = genomes_storage
     print('params')
     print(params)
     s = Struct(**params)  
@@ -155,7 +155,7 @@ def anvi_display_pan(request, pangenome):
     bottle_response = utils.MockBottleResponse()
     bottleapp = BottleApplication(d, bottle_request, bottle_response)
     return  JsonResponse(params)
-    #run_pangenome(request, pan_db, genome_storage)
+    #run_pangenome(request, pan_db, genomes_storage)
     #I.run()
     #print('RUNNING: '+cmd)
     #os.system(cmd+" &")
@@ -221,10 +221,10 @@ def ajax_handler_pangenome2(request, pangenome_slug, view_key, requested_url):
     logger.debug('in interactive.py ajax_handler_pangenome2')
     
     pan_db           = os.path.join('pangenomes',pangenome_slug,'PAN.db')      #self.get_file_path('PAN.db', self.name)
-    genome_storage   = os.path.join('pangenomes',pangenome_slug,'GENOMES.db')  #self.get_file_path('GENOMES.db', self.name)
+    genomes_storage   = os.path.join('pangenomes',pangenome_slug,'GENOMES.db')  #self.get_file_path('GENOMES.db', self.name)
     params = get_default_display_params()
     params['pan_db'] = pan_db
-    params['genome_storage'] = genome_storage
+    params['genomes_storage'] = genomes_storage
     print('params')
     print(params)
     s = Struct(**params)  
