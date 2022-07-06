@@ -18,11 +18,8 @@
 		<link rel="icon" type="image/png" href="{% static 'img/logo.png' %}"> 
 	</head>
 	<body>
-		{% if is_homd_pangenome %}
+		
 		  <iframe src="/static/interactive/index.html?request_prefix=/ajax_pangenome/{{ pangenome }}/{{ view_key }}"></iframe>
-	    {% else %}
-	      <iframe src="/static/interactive/index.html?request_prefix=/ajax/{{project.user.username}}/{{project.slug}}/{{ view_key }}"></iframe>
-	    {% endif %}
 	
 	{% analytics_script_block %}
 	</body>

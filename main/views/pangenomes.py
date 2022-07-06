@@ -52,7 +52,10 @@ def list_pangenomes(request):
         sum_bytes += os.path.getsize(os.path.join(path, obj['genomesfile']))
         #dfile = os.path.join(settings.PANGENOME_DATA_DIR,d,'description.txt')
         #descfile = os.path.basename(dfile[0])
-        obj['description'] =  read_file(request, os.path.join(path,'description.txt')) #'description.txt' #dfile
+        try:
+            obj['description'] =  read_file(request, os.path.join(path,'description.txt')) #'description.txt' #dfile
+        except:
+            obj['description'] = 'No Description Found'
         obj['size'] = round(convert_unit(sum_bytes, SIZE_UNIT.MB),2)
         pgobj.append(obj)
         

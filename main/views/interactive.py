@@ -2,17 +2,19 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, JsonResponse, HttpResponse
-
+from django.conf import settings
 from main.utils import get_project, get_pangenome, check_view_permission, check_write_permission
-from main.models import Project
+from main.models import Project, Pangenome
 from main.templatetags.gravatar import gravatar
 import main.utils as utils
 
 from anvio.bottleroutes import BottleApplication
+import anvio.interactive as interactive
 
 import zipfile
 import hashlib
 import json
+import enum
 import os,sys
 import io
 
@@ -41,6 +43,7 @@ def show_interactive(request, username, project_slug):
     logger.debug('in show interactive -request:')
     logger.debug(request)
     view_key = request.GET.get('view_key')
+    
     if view_key is None:
         view_key = "no_view_key"
 
@@ -51,9 +54,12 @@ def show_interactive(request, username, project_slug):
     return ''
 
 def show_pangenome_interactive(request, pangenome):
-    logger.debug('in show pangenome interactive')
-    logger.debug('pangenome is '+pangenome)
-    view_key = 'no_view_key'
+    
+    view_key = request.GET.get('view_key')
+    
+    if view_key is None:
+        view_key = "no_view_key"
+    logger.debug('in show pangenome interactive - view_key: '+view_key)
     return render(request, 'interactive.html', {'pangenome':pangenome,'view_key':view_key, 'is_homd_pangenome':True})
 
     
@@ -100,24 +106,162 @@ def download_zip(request, username, project_slug):
     response['Content-Length'] = zip_io.tell()
     return response
 
+def anvi_display_pan(request, pangenome):
+    logger.debug('IN TEST1 ')
+    print('IN TEST2')
+    pan_db           = os.path.join('pangenomes',pangenome,'PAN.db')      #self.get_file_path('PAN.db', self.name)
+    genome_storage   = os.path.join('pangenomes',pangenome,'GENOMES.db')  #self.get_file_path('GENOMES.db', self.name)
+    pgobj=[]
+    
+    lst = sorted(os.listdir(settings.PANGENOME_DATA_DIR))
+    for d in lst:  # use the dirname as pg name
+        #logger.debug('LST '+d)
+        sum_bytes = 0
+        obj = {'name':d,'size':0}
+        path = os.path.join(settings.PANGENOME_DATA_DIR, d)
+        obj['path'] = path
+        #pfile = os.path.join(settings.PANGENOME_DATA_DIR,d,'PAN.db')
+        #if len(pfile) > 0:
+        #panfile = os.path.basename(pfile[0]) # take only the first one
+        obj['panfile'] = 'PAN.db' #pfile
+        sum_bytes += os.path.getsize(os.path.join(path, obj['panfile']))
+        #gfile = os.path.join(settings.PANGENOME_DATA_DIR,d,'GENOMES.db')
+        #genomesfile = os.path.basename(gfile[0])
+        obj['genomesfile'] =  'GENOMES.db' #gfile
+        sum_bytes += os.path.getsize(os.path.join(path, obj['genomesfile']))
+        #dfile = os.path.join(settings.PANGENOME_DATA_DIR,d,'description.txt')
+        #descfile = os.path.basename(dfile[0])
+        try:
+            obj['description'] =  read_file(os.path.join(path,'description.txt')) #'description.txt' #dfile
+        except:
+            obj['description'] = 'No Description Found'
+        obj['size'] = round(convert_unit(sum_bytes, SIZE_UNIT.MB),2)
+        pgobj.append(obj)
+        
+    context = {
+       # 'pangenomes': Pangenome.objects,
+        'pangenomes': pgobj
+    }
+    #  nohup /path/to/your/script.sh > /dev/null 2>&1 &
+    #cmd = "anvi-display-panAV -p "+pan_db+" -g "+genome_storage+" -I "+settings.PAN_IP_ADDRESS
+    params = get_default_display_params()
+    params['pan_db'] = pan_db
+    params['genome_storage'] = genome_storage
+    print('params')
+    print(params)
+    s = Struct(**params)  
+    d = interactive.Interactive(s)
+    bottle_request = utils.MockBottleRequest(django_request=request)
+    bottle_response = utils.MockBottleResponse()
+    bottleapp = BottleApplication(d, bottle_request, bottle_response)
+    return  JsonResponse(params)
+    #run_pangenome(request, pan_db, genome_storage)
+    #I.run()
+    #print('RUNNING: '+cmd)
+    #os.system(cmd+" &")
+    #subprocess.Popen("anvi-display-pan -p "+pan_db+" -g "+genomes_storage+" -I localhost -P 8022")
+    
+    return render(request, 'pangenomes/list.html', context)
+def get_default_display_params():
+    obj = {
+       # Default::Namespace(
+       'mode':'pan',
+      'additional_layers':None, 
+      'additional_view':None, 
+      'browser_path':None, 
+      'collection_autoload':None, 
+      'dry_run':False, 
+      'export_svg':None, 
+      #genomes_storage='pangenomes/Veillonella_HMT780/GENOMES.db', 
+      #pan_db='pangenomes/Veillonella_HMT780/PAN.db'
+      'ip_address':'localhost', 
+      'password_protected':False, 
+      'port_number':0, 
+      'read_only':False, 
+      'server_only':False, 
+      'skip_auto_ordering':False, 
+      'skip_init_functions':False, 
+      'skip_news':False, 
+      'state_autoload':None, 
+      'title':None, 
+      'tree':None, 
+      'user_server_shutdown':False, 
+      'view':None, 
+      'view_data':None
+      }
+    return obj
+    
+class Struct:
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+        
+class SIZE_UNIT(enum.Enum):
+   BYTES = 1
+   KB = 2
+   MB = 3
+   GB = 4
+def convert_unit(size_in_bytes, unit):
+   """ Convert the size from bytes to other units like KB, MB or GB"""
+   if unit == SIZE_UNIT.KB:
+       return size_in_bytes/1024
+   elif unit == SIZE_UNIT.MB:
+       return size_in_bytes/(1024*1024)
+   elif unit == SIZE_UNIT.GB:
+       return size_in_bytes/(1024*1024*1024)
+   else:
+       return size_in_bytes
+       
+def read_file(file_path):
+    f = open(file_path, 'r')
+    file_content = f.read()
+    f.close()
+    #context = {'file_content': file_content}
+    return file_content 
+def ajax_handler_pangenome2(request, pangenome_slug, view_key, requested_url):
+    logger.debug('in interactive.py ajax_handler_pangenome2')
+    
+    pan_db           = os.path.join('pangenomes',pangenome_slug,'PAN.db')      #self.get_file_path('PAN.db', self.name)
+    genome_storage   = os.path.join('pangenomes',pangenome_slug,'GENOMES.db')  #self.get_file_path('GENOMES.db', self.name)
+    params = get_default_display_params()
+    params['pan_db'] = pan_db
+    params['genome_storage'] = genome_storage
+    print('params')
+    print(params)
+    s = Struct(**params)  
+    d = interactive.Interactive(s)
+    bottle_request = utils.MockBottleRequest(django_request=request)
+    bottle_response = utils.MockBottleResponse()
+    bottleapp = BottleApplication(d, bottle_request, bottle_response)
+    return  JsonResponse(params)
+    
+    
 def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
+    logger.debug('\nrequested_url: '+requested_url)
     logger.debug('in interactive.py ajax_handler_pangenome')
     logger.debug('pangenome slug: '+pangenome_slug) # just name of pangenome
     logger.debug('view_key '+view_key)
-    logger.debug('requested_url '+requested_url)
+    
     username = 'guest'
     
     if not request.is_ajax():
         raise Http404
     read_only = True
-    pangenome = get_pangenome(pangenome_slug)
-    logger.debug('pangenome name from Class:: '+pangenome.name)
+    pangenome_obj = get_pangenome(pangenome_slug)
+    logger.debug('pangenome name from Class:: '+pangenome_obj.name)
     
     bottle_request = utils.MockBottleRequest(django_request=request)
     bottle_response = utils.MockBottleResponse()
     
-    interactive = pangenome.get_interactive(read_only=read_only) 
-      
+    interactive = None
+    
+    if not requested_url.startswith('data/news'):
+        interactive = pangenome_obj.get_interactive(read_only=read_only)
+    
+    
+    
+    # interactive = pangenome.get_interactive(read_only=read_only) 
+#     logger.debug('interactive')
+#     logger.debug(interactive)
     bottleapp = BottleApplication(interactive, bottle_request, bottle_response)
     
     if requested_url.startswith('data/init'):
@@ -150,43 +294,161 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
             functions_sources = list(interactive.gene_function_call_sources)
         elif interactive.mode == 'pan':
             functions_sources = list(interactive.gene_clusters_function_sources)
-
-        return JsonResponse({ "title": pangenome.name,
-                             "description": interactive.p_meta['description'],
-                             "item_orders": (default_order, interactive.p_meta['item_orders'][default_order], list(interactive.p_meta['item_orders'].keys())),
-                             "views": (default_view, interactive.views[default_view], list(interactive.views.keys())),
-                             "item_lengths": dict([tuple((c, interactive.splits_basic_info[c]['length']),) for c in interactive.splits_basic_info]),
-                             "server_mode": True,
-                             "mode": interactive.mode,
-                             "read_only": interactive.read_only, 
-                             "bin_prefix": "Bin_",
-                             "session_id": 0,
-                             "layers_order": interactive.layers_order_data_dict,
-                             "layers_information": interactive.layers_additional_data_dict,
-                             "layers_information_default_order": interactive.layers_additional_data_keys,
-                             "check_background_process": False,
-                             "autodraw": autodraw,
-                             "inspection_available": interactive.auxiliary_profile_data_available,
-                             "sequences_available": True if interactive.split_sequences else False,
-                             "functions_initialized": interactive.gene_function_calls_initiated,
-                             "functions_sources": functions_sources,
-                             "state": (interactive.state_autoload, state_dict),
-                             "collection": collection_dict,
-                             "samples": interactive.p_meta['samples'] if interactive.mode in ['full', 'refine'] else [],
-                             "load_full_state": True,
-                             "project": {
-                                 'username': 'guest',
+        obj = JsonResponse(
+           { 
+             "title": pangenome_obj.name,
+             "description": interactive.p_meta['description'],
+             "item_orders": (default_order, interactive.p_meta['item_orders'][default_order], list(interactive.p_meta['item_orders'].keys())),
+             "views": (default_view, interactive.views[default_view], list(interactive.views.keys())),
+             "item_lengths": dict([tuple((c, interactive.splits_basic_info[c]['length']),) for c in interactive.splits_basic_info]),
+             "server_mode": False,
+             "mode": interactive.mode,
+             "read_only": interactive.read_only, 
+             "bin_prefix": "Bin_",
+             "session_id": 0,
+             "layers_order": interactive.layers_order_data_dict,
+             "layers_information": interactive.layers_additional_data_dict,
+             "layers_information_default_order": interactive.layers_additional_data_keys,
+             "check_background_process": False,
+             "autodraw": autodraw,
+             "inspection_available": interactive.auxiliary_profile_data_available,
+             "sequences_available": True if interactive.split_sequences else False,
+             "functions_initialized": interactive.gene_function_calls_initiated,
+             "functions_sources": functions_sources,
+             "state": (interactive.state_autoload, state_dict),
+             "collection": collection_dict,
+             "samples": interactive.p_meta['samples'] if interactive.mode in ['full', 'refine'] else [],
+             "load_full_state": True,
+             "project": {
+                 'username': 'guest',
 #                                 'fullname': project.user.userprofile.fullname if project.user.userprofile.fullname else project.user.username,
 #                                 'user_avatar': gravatar(project.user.email),
-                                  'download_zip_url': ''  #download_zip_url
-                                 }
-                            })
+                  'download_zip_url': ''  #download_zip_url
+                 }
+            })
+        obj2 = { 
+         "title": pangenome_obj.name,
+         "description": interactive.p_meta['description'],
+         "item_orders": (default_order, interactive.p_meta['item_orders'][default_order], list(interactive.p_meta['item_orders'].keys())),
+         "views": (default_view, interactive.views[default_view], list(interactive.views.keys())),
+         "item_lengths": dict([tuple((c, interactive.splits_basic_info[c]['length']),) for c in interactive.splits_basic_info]),
+         "server_mode": False,
+         "mode": interactive.mode,
+         "read_only": interactive.read_only, 
+         "bin_prefix": "Bin_",
+         "session_id": 0,
+         "layers_order": interactive.layers_order_data_dict,
+         "layers_information": interactive.layers_additional_data_dict,
+         "layers_information_default_order": interactive.layers_additional_data_keys,
+         "check_background_process": False,
+         "autodraw": autodraw,
+         "inspection_available": interactive.auxiliary_profile_data_available,
+         "sequences_available": True if interactive.split_sequences else False,
+         "functions_initialized": interactive.gene_function_calls_initiated,
+         "functions_sources": functions_sources,
+         "state": (interactive.state_autoload, state_dict),
+         "collection": collection_dict,
+         "samples": interactive.p_meta['samples'] if interactive.mode in ['full', 'refine'] else [],
+         "load_full_state": True,
+         "project": {
+             'username': 'guest',
+              'download_zip_url': ''  #download_zip_url
+             }
+        }
+        logger.debug('data/init--obj2-keys()')
+        logger.debug(obj2.keys())
+        #logger.debug(obj2['views'])
+        return obj
 
     
-    return HttpResponse(bottleapp.get_news(), content_type='application/json')
+    elif requested_url.startswith('data/view/'):
+        param = requested_url.split('/')[-1]
+        return HttpResponse(bottleapp.get_view_data(param), content_type='application/json')
+
+    elif requested_url.startswith('tree/'):
+        param = requested_url.split('/')[-1]
+        return HttpResponse(bottleapp.get_items_order(param), content_type='application/json')
+
+    elif requested_url.startswith('data/collections'):
+        return HttpResponse(bottleapp.get_collections(), content_type='application/json')
+
+    elif requested_url.startswith('data/collection/'):
+        param = requested_url.split('/')[-1]
+        return HttpResponse(bottleapp.get_collection_dict(param), content_type='application/json')
+
+    elif requested_url.startswith('store_collection'):
+        if not check_write_permission(project, request.user):
+            raise Http404
+
+        ret = HttpResponse(bottleapp.store_collections_dict(), content_type='application/json')
+        project.synchronize_num_collections(save=True)
+        return ret
+
+    elif requested_url.startswith('data/contig/'):
+        param = requested_url.split('/')[-1]
+        return HttpResponse(bottleapp.get_sequence_for_split(param), content_type='application/json')
+    
+    
+    elif requested_url.startswith('data/check_homogeneity_info'):
+        return HttpResponse(bottleapp.check_homogeneity_info(), content_type='application/json')
+    elif requested_url.startswith('data/search_functions'):
+        return HttpResponse(bottleapp.search_functions(), content_type='application/json')
+    
+    elif requested_url.startswith('store_description'):
+        if not check_write_permission(project, request.user):
+            raise Http404
+
+        return HttpResponse(bottleapp.store_description(), content_type='application/json')
+
+    elif requested_url.startswith('state/all'):
+        return HttpResponse(bottleapp.state_all(), content_type='application/json')
+
+    elif requested_url.startswith('state/get'):
+        param = requested_url.split('/')[-1]
+        return HttpResponse(bottleapp.get_state(param), content_type='application/json')
+
+    elif requested_url.startswith('state/save'):
+        if not check_write_permission(project, request.user):
+            raise Http404
+
+        param = requested_url.split('/')[-1]
+        ret = HttpResponse(bottleapp.save_state(param), content_type='application/json')
+        project.synchronize_num_states(save=True)
+        return ret
+
+    elif requested_url.startswith('data/charts/'):
+        order_name = requested_url.split('/')[-2]
+        item_name = requested_url.split('/')[-1]
+        return HttpResponse(bottleapp.charts(order_name, item_name), content_type='application/json')
+
+    elif requested_url.startswith('data/geneclusters/'):
+        order_name = requested_url.split('/')[-2]
+        item_name = requested_url.split('/')[-1]
+        return HttpResponse(bottleapp.inspect_gene_cluster(order_name, item_name), content_type='application/json')
+
+    elif requested_url.startswith('data/get_AA_sequences_for_gene_cluster/'):
+        param = requested_url.split('/')[-1]
+        return HttpResponse(bottleapp.get_AA_sequences_for_gene_cluster(param), content_type='application/json')
+
+    #elif requested_url.startswith('data/news'):
+    #    return HttpResponse(bottleapp.get_news(), content_type='application/json')
+
+    elif requested_url.startswith('data/gene'):
+        param = requested_url.split('/')[-1]
+        return HttpResponse(bottleapp.get_sequence_for_gene_call(param), content_type='application/json')
+
+    elif requested_url.startswith('data/completeness'):
+        return HttpResponse(bottleapp.completeness(), content_type='application/json')
+
+    elif requested_url.startswith('data/reroot_tree'):
+        return HttpResponse(bottleapp.reroot_tree(), content_type='application/json')
+
+
+    raise Http404
+
        
 def ajax_handler(request, username, project_slug, view_key, requested_url):
-    logger.debug('in interactive.py ajax_handler')
+    logger.debug('in interactive.py ajax_handler(NOT PANGENOME)')
     logger.debug('username '+username)
     logger.debug('requested_url '+requested_url)
     if not request.is_ajax():
