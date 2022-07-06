@@ -1,6 +1,8 @@
 conda activate anvio
 python manage.py makemigrations
 python manage.py migrate
+python manage.py collectstatic
+MBL::sudo nginx
 gunicorn -c gunicorn.conf.py anviserver.wsgi:application --daemon
 
 # Installing anvi'o and anvi'server

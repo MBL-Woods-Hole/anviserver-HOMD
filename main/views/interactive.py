@@ -389,8 +389,8 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
         return HttpResponse(bottleapp.get_sequence_for_split(param), content_type='application/json')
     
     
-    # elif requested_url.startswith('data/check_homogeneity_info'):
-#         return HttpResponse(bottleapp.check_homogeneity_info(), content_type='application/json')
+    elif requested_url.startswith('data/check_homogeneity_info'):
+        return HttpResponse(bottleapp.check_homogeneity_info(), content_type='application/json')
     elif requested_url.startswith('data/search_functions'):
         return HttpResponse(bottleapp.search_functions(), content_type='application/json')
     
