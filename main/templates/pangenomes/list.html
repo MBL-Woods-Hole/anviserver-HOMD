@@ -51,7 +51,7 @@ td{
                     <th class="col-md-3">Pangenome Name</th>
                     <th class="col-md-2" style='text-align:center;'>Combined File Size (MB)</th>
                     <th class="col-md-2" style='text-align:center;'>Open in Anvi'o</th>
-                    <th class="col-md-2" style='text-align:center;'>Testing</th>
+                    
                     <th class="col-md-2" style='text-align:center;'>Download Files</th>
                     
                     
@@ -75,19 +75,14 @@ td{
                     </div>
                     </td>
                     
-                    <td class="popover-item" align='center'><a href="{% url 'show_pangenome_interactive' pangenome.name %}">Anvi'o</a>
+                    <td class="popover-item" align='center'>
+                    <a href="{% url 'show_pangenome_interactive' pangenome.name  %}">Open in Anvi'o</a>
                     <div class="popover-content">
 		              <h1>Pangenome: {{ pangenome.name }}</h1>
 		              <p>Description:<br>{% autoescape off %}{{ pangenome.description }}{% endautoescape %}</p>
                     </div>
                     </td>
                     
-                    <td class="popover-item" align='center'><a href="{{ pangenome.name }}">TEST</a>
-                    <div class="popover-content">
-		              <h1>Pangenome: {{ pangenome.name }}</h1>
-		              <p>Description:<br>{% autoescape off %}{{ pangenome.description }}{% endautoescape %}</p>
-                    </div>
-                    </td>
                     
                     <td class="popover-item" align='center'><a href="{% url 'download_pangenome_zip' pangenome.name %}">download &#8595;</a>
                     <div class="popover-content">

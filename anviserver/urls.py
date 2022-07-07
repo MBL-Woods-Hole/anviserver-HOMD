@@ -30,15 +30,17 @@ urlpatterns = [
    
     
     re_path(r'^p/(?P<short_link_key>\w+)', interactive.short_link_redirect, name='short_link_redirect'),
-    
-    re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome),
+    re_path(r'^(?P<username>\w+)/(?P<project_slug>\w+)/download', interactive.download_zip, name="download_zip"),
+    #re_path('ajax/(?P<username>\w+)/(?P<project_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler),
+    #re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome),
+    re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome, name='ajax_pangenome'),
     #re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome2),
     
     
     path('home', index.show_index),
     path('pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
     path('anviserver/pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
-    path('anviserver/<pangenome>', interactive.anvi_display_pan, name="anvi_display_pan" ),
+    path('anviserver/<pangenome>', interactive.ajax_handler_pangenome, name="ajax_handler_pangenome" ),
     path('pangenomes/<pangenome>', interactive.show_pangenome_interactive, name="show_pangenome_interactive"),
     
     path('pangenomes/<pangenome>/download', pangenomes.download_pangenome_zip, name="download_pangenome_zip"),
