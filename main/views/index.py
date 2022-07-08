@@ -5,4 +5,4 @@ def show_index(request):
     return render(request, 'index.html')
 
 def show_error_page(request, exception):
-	return render(request, 'error.html')
+    return render(request, 'error.html')

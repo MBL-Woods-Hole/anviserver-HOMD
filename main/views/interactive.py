@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from main.utils import get_project, get_pangenome, check_view_permission, check_write_permission
 from main.models import Project, Pangenome
@@ -306,6 +307,7 @@ def read_file(file_path):
 #     #return HttpResponse( content_type='application/json')
     
     
+@csrf_exempt
 def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     logger.debug('\nrequested_url: '+requested_url)
     # logger.debug('in interactive.py ajax_handler_pangenome')
@@ -338,7 +340,7 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     bottleapp = BottleApplication(interactive, bottle_request, bottle_response)
     
     if requested_url.endswith('data/init'):
-        logger.debug('caught data/init')
+        #logger.debug('caught data/init')
         download_zip_url = reverse('download_zip', args=[username, pangenome_slug])
         if view_key != 'no_view_key':
             download_zip_url += '?view_key=' + view_key
