@@ -493,7 +493,7 @@ ContextMenu.prototype.Show = function() {
 
         this.menu_items[item_name]['action'](this.node, this.layer);
     });
-
+    
     this.container.addEventListener('click', (event) => {
         list.remove();
     }, {once: true});
