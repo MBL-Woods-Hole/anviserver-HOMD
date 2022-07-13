@@ -43,7 +43,7 @@ urlpatterns = [
     path('pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
     path('anviserver/pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
     path('anviserver/<pangenome>', interactive.anvi_display_pan_testing, name="anvi_display_pan_testing" ),
-    
+    path('<pangenome>', interactive.anvi_display_pan_testing, name="anvi_display_pan_testing" ),
     path('pangenomes/<pangenome>/download', pangenomes.download_pangenome_zip, name="download_pangenome_zip"),
    
     
