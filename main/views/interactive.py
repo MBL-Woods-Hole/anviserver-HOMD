@@ -303,7 +303,7 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     
     if not request.is_ajax():
         raise Http404
-    read_only = True
+    read_only = False
     pangenome_obj = get_pangenome(pangenome_slug)
     logger.debug('pangenome name from Class:: '+pangenome_obj.name)
     
@@ -320,8 +320,8 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     args['pan_db']            = os.path.join('pangenomes',pangenome_slug,'PAN.db')      #self.get_file_path('PAN.db', self.name)
     args['genomes_storage']   = os.path.join('pangenomes',pangenome_slug,'GENOMES.db')  #self.get_file_path('GENOMES.db', self.name)
     s = Struct(**args) 
-    if not requested_url.endswith('data/news'):
-        interactive = pangenome_obj.get_interactive()  #interactive.Interactive(s)
+    #if not requested_url.endswith('data/news'):
+    interactive = pangenome_obj.get_interactive(read_only=read_only)  #interactive.Interactive(s)
     
     bottleapp = BottleApplication(interactive, bottle_request, bottle_response)
     
@@ -329,9 +329,10 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     
     if requested_url.find('data/init') != -1:
         #logger.debug('caught data/init')
-        download_zip_url = reverse('download_zip', args=[username, pangenome_slug])
-        if view_key != 'no_view_key':
-            download_zip_url += '?view_key=' + view_key
+        #if name == "init":
+        bin_prefix = "Bin_"
+        if interactive.mode == 'refine':
+            bin_prefix = list(interactive.bin_names_of_interest)[0] + "_" if len(interactive.bin_names_of_interest) == 1 else "Refined_",
 
         default_view = interactive.default_view
         default_order = interactive.p_meta['default_item_order']
@@ -341,53 +342,122 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
         if interactive.state_autoload:
             state_dict = json.loads(interactive.states_table.states[interactive.state_autoload]['content'])
 
-            if state_dict['current-view'] in interactive.views:
+            if 'current-view' in state_dict and state_dict['current-view'] in interactive.views:
                 default_view = state_dict['current-view']
 
-            if state_dict['order-by'] in interactive.p_meta['item_orders']:
+            if 'order-by' in state_dict and state_dict['order-by'] in interactive.p_meta['item_orders']:
                 default_order = state_dict['order-by']
 
             autodraw = True
 
         collection_dict = None
-        if interactive.collection_autoload:
+        if interactive.mode != 'collection' and interactive.mode != 'refine' and interactive.collection_autoload:
             collection_dict = json.loads(bottleapp.get_collection_dict(interactive.collection_autoload))
+            autodraw = True
+
+        item_lengths = {}
+        if interactive.mode == 'full' or interactive.mode == 'refine':
+            item_lengths = dict([tuple((c, interactive.splits_basic_info[c]['length']),) for c in interactive.splits_basic_info])
+        elif interactive.mode == 'pan':
+            for gene_cluster in interactive.gene_clusters:
+                item_lengths[gene_cluster] = 0
+                for genome in interactive.gene_clusters[gene_cluster]:
+                    item_lengths[gene_cluster] += len(interactive.gene_clusters[gene_cluster][genome])
 
         functions_sources = []
-        if interactive.mode == 'full' or interactive.mode == 'gene':
+        if interactive.mode == 'full' or interactive.mode == 'gene' or interactive.mode == 'refine':
             functions_sources = list(interactive.gene_function_call_sources)
         elif interactive.mode == 'pan':
             functions_sources = list(interactive.gene_clusters_function_sources)
-        obj2 = { 
-         "title": pangenome_obj.name,
-         "description": interactive.p_meta['description'],
-         "item_orders": (default_order, interactive.p_meta['item_orders'][default_order], list(interactive.p_meta['item_orders'].keys())),
-         "views": (default_view, interactive.views[default_view], list(interactive.views.keys())),
-         "item_lengths": dict([tuple((c, interactive.splits_basic_info[c]['length']),) for c in interactive.splits_basic_info]),
-         "server_mode": False,
-         "mode": interactive.mode,
-         "read_only": interactive.read_only, 
-         "bin_prefix": "Bin_",
-         "session_id": 0,
-         "layers_order": interactive.layers_order_data_dict,
-         "layers_information": interactive.layers_additional_data_dict,
-         "layers_information_default_order": interactive.layers_additional_data_keys,
-         "check_background_process": False,
-         "autodraw": autodraw,
-         "inspection_available": interactive.auxiliary_profile_data_available,
-         "sequences_available": True if interactive.split_sequences else False,
-         "functions_initialized": interactive.gene_function_calls_initiated,
-         "functions_sources": functions_sources,
-         "state": (interactive.state_autoload, state_dict),
-         "collection": collection_dict,
-         "samples": interactive.p_meta['samples'] if interactive.mode in ['full', 'refine'] else [],
-         "load_full_state": True,
-         "project": {
-             'username': 'guest',
-              'download_zip_url': ''  #download_zip_url
-             }
-        }
-        return JsonResponse(obj2)
+
+        inspection_available = interactive.auxiliary_profile_data_available
+        session_id = 0
+        return JsonResponse( {# "version":                            anvio.anvio_version,
+                             "title":                              interactive.title,
+                             "description":                        interactive.p_meta['description'],
+                             "item_orders":                        (default_order, interactive.p_meta['item_orders'][default_order], list(interactive.p_meta['item_orders'].keys())),
+                             "views":                              (default_view, interactive.views[default_view], list(interactive.views.keys())),
+                             "item_lengths":                       item_lengths,
+                             "mode":                               interactive.mode,
+                             "server_mode":                        False,
+                             "read_only":                          read_only,
+                             "bin_prefix":                         bin_prefix,
+                             "session_id":                         session_id,
+                             "layers_order":                       interactive.layers_order_data_dict,
+                             "layers_information":                 interactive.layers_additional_data_dict,
+                             "layers_information_default_order":   interactive.layers_additional_data_keys,
+                             "check_background_process":           True,
+                             "autodraw":                           autodraw,
+                             "inspection_available":               inspection_available,
+                             "sequences_available":                True if (interactive.split_sequences or interactive.mode == 'gene') else False,
+                             "functions_initialized":              interactive.gene_function_calls_initiated,
+                             "functions_sources":                  functions_sources,
+                             "state":                              (interactive.state_autoload, state_dict),
+                             "collection":                         collection_dict,
+                             "samples":                            interactive.p_meta['samples'] if interactive.mode in ['full', 'refine'] else [],
+                             "load_full_state":                    interactive.load_full_state })
+        
+        
+        
+       #  download_zip_url = reverse('download_zip', args=[username, pangenome_slug])
+#         if view_key != 'no_view_key':
+#             download_zip_url += '?view_key=' + view_key
+# 
+#         default_view = interactive.default_view
+#         default_order = interactive.p_meta['default_item_order']
+#         autodraw = False
+#         state_dict = None
+# 
+#         if interactive.state_autoload:
+#             state_dict = json.loads(interactive.states_table.states[interactive.state_autoload]['content'])
+# 
+#             if state_dict['current-view'] in interactive.views:
+#                 default_view = state_dict['current-view']
+# 
+#             if state_dict['order-by'] in interactive.p_meta['item_orders']:
+#                 default_order = state_dict['order-by']
+# 
+#             autodraw = True
+# 
+#         collection_dict = None
+#         if interactive.collection_autoload:
+#             collection_dict = json.loads(bottleapp.get_collection_dict(interactive.collection_autoload))
+# 
+#         functions_sources = []
+#         if interactive.mode == 'full' or interactive.mode == 'gene':
+#             functions_sources = list(interactive.gene_function_call_sources)
+#         elif interactive.mode == 'pan':
+#             functions_sources = list(interactive.gene_clusters_function_sources)
+#         obj2 = { 
+#          "title": pangenome_obj.name,
+#          "description": interactive.p_meta['description'],
+#          "item_orders": (default_order, interactive.p_meta['item_orders'][default_order], list(interactive.p_meta['item_orders'].keys())),
+#          "views": (default_view, interactive.views[default_view], list(interactive.views.keys())),
+#          "item_lengths": dict([tuple((c, interactive.splits_basic_info[c]['length']),) for c in interactive.splits_basic_info]),
+#          "server_mode": False,
+#          "mode": interactive.mode,
+#          "read_only": interactive.read_only, 
+#          "bin_prefix": "Bin_",
+#          "session_id": 0,
+#          "layers_order": interactive.layers_order_data_dict,
+#          "layers_information": interactive.layers_additional_data_dict,
+#          "layers_information_default_order": interactive.layers_additional_data_keys,
+#          "check_background_process": False,
+#          "autodraw": autodraw,
+#          "inspection_available": interactive.auxiliary_profile_data_available,
+#          "sequences_available": True if interactive.split_sequences else False,
+#          "functions_initialized": interactive.gene_function_calls_initiated,
+#          "functions_sources": functions_sources,
+#          "state": (interactive.state_autoload, state_dict),
+#          "collection": collection_dict,
+#          "samples": interactive.p_meta['samples'] if interactive.mode in ['full', 'refine'] else [],
+#          "load_full_state": True,
+#          "project": {
+#              'username': 'guest',
+#               'download_zip_url': ''  #download_zip_url
+#              }
+#         }
+#         return JsonResponse(obj2)
         
         
         
