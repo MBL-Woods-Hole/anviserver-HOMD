@@ -28,7 +28,7 @@ urlpatterns = [
     re_path(r'^teams', teams.list_teams, name="teams"),
     
     re_path(r'^p/(?P<short_link_key>\w+)', interactive.short_link_redirect, name='short_link_redirect'),
-    
+    #re_path(r'^app/index.html/inspect_geneclusters', interactive.test_index ),
     
     
     re_path(r'^(?P<username>\w+)/(?P<project_slug>\w+)/download', interactive.download_zip, name="download_zip"),
@@ -36,16 +36,18 @@ urlpatterns = [
     #re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome),
     re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome, name='ajax_pangenome'),
     path('pangenomes/<pangenome>', interactive.show_pangenome_interactive, name="show_pangenome_interactive"),
-    path('pangenomes/<pangenome>', interactive.anvi_display_pan_testing, name="anvi_display_pan_testing"),
+    #path('pangenomes/<pangenome>', interactive.anvi_display_pan_testing, name="anvi_display_pan_testing"),
     
     
     path('home', index.show_index),
     path('pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
     path('anviserver/pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
-    path('anviserver/<pangenome>', interactive.anvi_display_pan_testing, name="anvi_display_pan_testing" ),
+    
     path('<pangenome>', interactive.anvi_display_pan_testing, name="anvi_display_pan_testing" ),
+    path('anviserver/<pangenome>', interactive.anvi_display_pan_testing, name="anvi_display_pan_testing" ),
+    
     path('pangenomes/<pangenome>/download', pangenomes.download_pangenome_zip, name="download_pangenome_zip"),
-   
+    
     
    
     re_path(r'^$', index.show_index, name='index'),

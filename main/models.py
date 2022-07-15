@@ -47,9 +47,8 @@ class Pangenome:
         
         
 #         args.additional_layers      = self.get_file_path('additional-layers.txt', default=None)
-        logger.debug('args')
-        logger.debug(args)
-        logger.debug('in models(Pangenome): returning interactive.Interactive(args)') 
+        
+        #logger.debug('in models(Pangenome): returning interactive.Interactive(args)') 
         # this runs anvio interactive  
         
         return interactive.Interactive(args)

@@ -122,7 +122,7 @@ function generate_inspect_link(options) {
     let show_snvs = options.show_snvs;
     let type = options.type;
     let item_name = options.item_name;
-
+    console.log('In utis.js::generate_inspect_link()')
     let url = window.location.href.split('?')[0];
     let new_url = "";
 
@@ -160,7 +160,7 @@ function generate_inspect_link(options) {
     else
     {
         // anvi server
-        if (url.endsWith('/inspect') || url.endsWith('/geneclusters')) {
+        if (url.indexOf('inspect') != -1 || url.indexOf('geneclusters') != -1) {
             // on charts or gene cluster page
             new_url = url;
         }

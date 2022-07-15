@@ -290,11 +290,15 @@ def read_file(file_path):
 #     #bottleapp = BottleApplication(d)
 #     return  JsonResponse(params, safe=False)
 #     #return HttpResponse( content_type='application/json')
-    
+def test_index(request):
+    logger.debug('\nTESTING::: ')
+    order_name = requested_url.split('/')[-2]
+    item_name = requested_url.split('/')[-1]
+    return HttpResponse(bottleapp.inspect_gene_cluster(order_name, item_name), content_type='application/json')
     
 @csrf_exempt
 def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
-    logger.debug('\nrequested_url: '+requested_url)
+    logger.debug('\nSTART AJAX::requested_url: '+requested_url)
     # logger.debug('in interactive.py ajax_handler_pangenome')
 #     logger.debug('pangenome slug: '+pangenome_slug) # just name of pangenome
 #     logger.debug('view_key '+view_key)
@@ -320,13 +324,13 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     args['pan_db']            = os.path.join('pangenomes',pangenome_slug,'PAN.db')      #self.get_file_path('PAN.db', self.name)
     args['genomes_storage']   = os.path.join('pangenomes',pangenome_slug,'GENOMES.db')  #self.get_file_path('GENOMES.db', self.name)
     s = Struct(**args) 
-    #if not requested_url.endswith('data/news'):
-    interactive = pangenome_obj.get_interactive(read_only=read_only)  #interactive.Interactive(s)
+    if not requested_url.endswith('data/news'):
+        interactive = pangenome_obj.get_interactive(read_only=read_only)  #interactive.Interactive(s)
     
     bottleapp = BottleApplication(interactive, bottle_request, bottle_response)
-    
+    session_id = bottleapp.session_id
     #bottleapp.run_application('localhost', args.port_number)
-    
+    logger.debug('bottleapp.session_id; '+str(session_id))
     if requested_url.find('data/init') != -1:
         #logger.debug('caught data/init')
         #if name == "init":
@@ -370,9 +374,9 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
         elif interactive.mode == 'pan':
             functions_sources = list(interactive.gene_clusters_function_sources)
 
-        inspection_available = interactive.auxiliary_profile_data_available
-        session_id = 0
-        return JsonResponse( {# "version":                            anvio.anvio_version,
+        
+        
+        obj1 = {# "version":                            anvio.anvio_version,
                              "title":                              interactive.title,
                              "description":                        interactive.p_meta['description'],
                              "item_orders":                        (default_order, interactive.p_meta['item_orders'][default_order], list(interactive.p_meta['item_orders'].keys())),
@@ -388,14 +392,50 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
                              "layers_information_default_order":   interactive.layers_additional_data_keys,
                              "check_background_process":           True,
                              "autodraw":                           autodraw,
-                             "inspection_available":               inspection_available,
+                             "inspection_available":               interactive.auxiliary_profile_data_available,
                              "sequences_available":                True if (interactive.split_sequences or interactive.mode == 'gene') else False,
                              "functions_initialized":              interactive.gene_function_calls_initiated,
                              "functions_sources":                  functions_sources,
                              "state":                              (interactive.state_autoload, state_dict),
                              "collection":                         collection_dict,
                              "samples":                            interactive.p_meta['samples'] if interactive.mode in ['full', 'refine'] else [],
-                             "load_full_state":                    interactive.load_full_state })
+                             "load_full_state":                    interactive.load_full_state 
+                }
+        # obj::diff  item_lengths , read_only, , sequences_available, load_full_state
+        #check_background_process True  lets session_id flow but kills server
+        #check_background_process False  allows to run 
+        obj2 = { 
+         "title": pangenome_obj.name,
+         "description": interactive.p_meta['description'],
+         "item_orders": (default_order, interactive.p_meta['item_orders'][default_order], list(interactive.p_meta['item_orders'].keys())),
+         "views": (default_view, interactive.views[default_view], list(interactive.views.keys())),
+         #"item_lengths": dict([tuple((c, interactive.splits_basic_info[c]['length']),) for c in interactive.splits_basic_info]),
+          "item_lengths":                       item_lengths,
+         "server_mode": False,
+         "mode": interactive.mode,
+         "read_only": interactive.read_only, 
+         "bin_prefix": "Bin_",
+         "session_id": session_id,
+         "layers_order": interactive.layers_order_data_dict,
+         "layers_information": interactive.layers_additional_data_dict,
+         "layers_information_default_order": interactive.layers_additional_data_keys,
+         "check_background_process": False,
+         "autodraw": autodraw,
+         "inspection_available": interactive.auxiliary_profile_data_available,
+         "sequences_available": True if interactive.split_sequences else False,
+         "functions_initialized": interactive.gene_function_calls_initiated,
+         "functions_sources": functions_sources,
+         "state": (interactive.state_autoload, state_dict),
+         "collection": collection_dict,
+         "samples": interactive.p_meta['samples'] if interactive.mode in ['full', 'refine'] else [],
+         "load_full_state": True,
+         "project": {
+             'username': 'guest',
+              'download_zip_url': ''  #download_zip_url
+             }
+        }
+        
+        return JsonResponse(obj2)
         
         
         
@@ -487,9 +527,9 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
     elif requested_url.endswith('data/search_functions'):
         #logger.debug('got search fxn')
         return HttpResponse(bottleapp.search_functions(), content_type='application/json')
-    elif requested_url.endswith('data/news'):
+    #elif requested_url.endswith('data/news'):
         #logger.debug('got news fxn')
-        return HttpResponse(bottleapp.get_news(), content_type='application/json')
+        #return HttpResponse(bottleapp.get_news(), content_type='application/json')
     elif requested_url.endswith('data/check_homogeneity_info'):
         #logger.debug('got check_homogeneity_info fxn')
         return HttpResponse(bottleapp.check_homogeneity_info(), content_type='application/json')
@@ -532,11 +572,13 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
         return HttpResponse(bottleapp.charts(order_name, item_name), content_type='application/json')
 
     elif requested_url.find('geneclusters') != -1:
+        logger.debug('IN find geneclusters')
         order_name = requested_url.split('/')[-2]
         item_name = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.inspect_gene_cluster(order_name, item_name), content_type='application/json')
 
     elif requested_url.find('get_AA_sequences_for_gene_cluster') != -1:
+        logger.debug('IN find get_AA_sequences_for_gene_cluster')
         param = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.get_AA_sequences_for_gene_cluster(param), content_type='application/json')
 
