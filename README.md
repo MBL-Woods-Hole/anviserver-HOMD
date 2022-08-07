@@ -77,6 +77,14 @@ Edit `anviserver/settings.py`:
 * In SMTP settings section, change `EMAIL_HOST` and `EMAIL_HOST_USER`. You may need to change other values if you want to use any other SMTP host than Gmail. Makes sure the password is stored in `anviserver/secrets.py`.
 * Find `# Sentry settings` section and remove it if you do not want to use error tracking and reporting service [Sentry](https://sentry.io/). If you want to keep it you need to open new account and get an API key, later we will put in `anviserver/secrets.py`.
 
+# Start nginx
+ On MBL:: 
+   sudo nginx
+   test /usr/local/etc/nginx/conf.d/*  nginx -t
+ On home macbook::
+ On HOMD::
+ On bpcweb8::
+ 
 # Setting up Django
 
 Here you will setup Django which is the heart of anvi'server and first used django version 1.9
@@ -94,6 +102,7 @@ Then setup the Django database and static files:
 
 ```
 cd ~/github/anviserver
+python manage.py makemigrations
 python manage.py migrate
 python manage.py collectstatic
 ```
@@ -105,6 +114,7 @@ python manage.py createsuperuser
 ```
 
 # Running Gunicorn
+
 
 Gunicorn is a Python based HTTP server which you will use to serve the django anvi'server app.
 
