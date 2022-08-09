@@ -92,7 +92,7 @@ def read_file(request, file_path):
 
 def download_pangenome_zip(request, pangenome):
     pangenome = get_pangenome(pangenome)
-    #logger.debug('in download_pangenome_zip')
+    logger.debug('in download_pangenome_zip')
     view_key = request.GET.get('view_key')
     if view_key is None:
         view_key = "no_view_key"
