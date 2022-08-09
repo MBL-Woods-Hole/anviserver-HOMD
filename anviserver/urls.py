@@ -48,10 +48,9 @@ urlpatterns = [
     
     #path('<pangenome>', interactive.anvi_display_pan_testing, name="anvi_display_pan_testing" ),
     path('anviserver/<pangenome>', interactive.anvi_display_pan_testing, name="anvi_display_pan_testing" ),
-    
-    path('pangenomes/<pangenome>/download', pangenomes.download_pangenome_zip, name="download_pangenome_zip"),
     path('anviserver/pangenomes/<pangenome>/download', pangenomes.download_pangenome_zip, name="download_pangenome_zip"),
-    
+    path('pangenomes/<pangenome>/download', pangenomes.download_pangenome_zip, name="download_pangenome_zip"),
+   
     
    
     re_path(r'^$', index.show_index, name='index'),
