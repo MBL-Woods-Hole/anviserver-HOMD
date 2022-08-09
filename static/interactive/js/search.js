@@ -73,7 +73,7 @@ function searchFunctions() {
                 search_column = 'Annotation';
 
                 for (var i=0; i < data['results'].length; i++) {
-                    console.log(mode);
+                    //console.log(mode);
                     if (mode == 'pan') {
                         var _gene_caller_id = data['results'][i][0];
                         var _genome_name    = data['results'][i][1];

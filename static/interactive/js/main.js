@@ -203,7 +203,7 @@ $(document).ready(function() {
 });
 
 function initData() {
-    console.log('initData called')
+    //console.log('initData called')
     $.ajax({
         type: 'GET',
         cache: false,
@@ -1793,7 +1793,7 @@ function showGeneClusterDetails(bin_id, updateOnly) {
         return;
 
     let bin_info = bins.ExportBin(bin_id);
-    console.log(bin_info);
+    //console.log(bin_info);
 
     $.ajax({
         type: 'POST',
@@ -2358,7 +2358,7 @@ function loadState()
                             waitingDialog.hide();
                         },
                         error: function(response){
-                            console.log(response)
+                            //console.log(response)
                             alert('looks like the server failed to retrieve your state data :( consider rebooting your interactive session with the --debug flag for additional insights. ')
                         }
                     });

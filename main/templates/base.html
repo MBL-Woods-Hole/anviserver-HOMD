@@ -48,11 +48,7 @@
                 <ul class="nav navbar-nav">
                     {% with request.resolver_match.url_name as url_name %}
                     <li class=""><a href="anviserver/pangenomes">HOMD PanGenomes</a></li>
-                    <!--
-                    <li class="{% if 'projects' in url_name and 'new' not in url_name and 'teams' not in url_name %}active{% endif %}"><a href="{% url 'projects' %}">My Projects{% if user.is_authenticated %} <span class="badge badge-nav ">{{ request.user.project_set.all|length }}</span>{% endif %}</a></li>
-                    <li class="{% if 'projects_new' in url_name %}active{% endif %}"><a href="{% url 'projects_new' %}">New Project</a></li>
-                    <li class="{% if 'teams' in url_name %}active{% endif %}"><a href="{% url 'teams' %}">Teams{% if user.is_authenticated %} <span class="badge badge-nav ">{{ request.user.teamuser_set.all|length }}</span>{% endif %}</a></li>
-                    -->
+                    
                     {% endwith %}
                     <li><a href="http://merenlab.org/tutorials/interactive-interface/">Help</a></li>
                     <li><a href="http://merenlab.org/software/anvio/index.html">About Anvi'o</a></li>
