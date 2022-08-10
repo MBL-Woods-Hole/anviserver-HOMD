@@ -31,7 +31,7 @@ urlpatterns = [
     #re_path(r'^app/index.html/inspect_geneclusters', interactive.test_index ),
     
     
-    re_path(r'^(?P<username>\w+)/(?P<project_slug>\w+)/download', interactive.download_zip, name="download_zip"),
+    #re_path(r'^(?P<username>\w+)/(?P<project_slug>\w+)/download', interactive.download_zip, name="download_zip"),
     #re_path('ajax/(?P<username>\w+)/(?P<project_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler),
     #re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome),
     re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome, name='ajax_pangenome'),
