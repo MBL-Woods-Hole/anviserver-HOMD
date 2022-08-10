@@ -92,7 +92,7 @@ td{
                     </td>
                     
                     <td class="popover-item" align='center'>
-                    <a href="{% url 'download_pangenome_zip' pangenome.name %}">download (zip file)&#8595;</a>
+                    <a href="{% url 'download_pangenome_zip' pangenome.name %}">download (tar.gz file)&#8595;</a>
                     <div class="popover-content">
 		              <h1>Pangenome: {{ pangenome.name }}</h1>
 		              <p>Description:<br>{% autoescape off %}{{ pangenome.description }}{% endautoescape %}</p>
