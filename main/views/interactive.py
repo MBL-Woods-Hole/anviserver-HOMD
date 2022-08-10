@@ -77,23 +77,24 @@ def show_inspect(request, username, project_slug, inspection_type):
                                            })
 
 
-def download_zip(request, username, project_slug):
-    project = get_project(username, project_slug)
-
+def download_zip(request, username, pangenome):
+    #project = get_project(username, project_slug)
+    logger.debug('In interactive.py:download_zip(request, username, project_slug)')
+    logger.debug('user: '+username)
+    logger.debug('pg: '+pangenome)
+    pangenome = get_pangenome(pangenome)
+    
     view_key = request.GET.get('view_key')
     if view_key is None:
         view_key = "no_view_key"
 
-    if not check_view_permission(project, request.user, view_key):
-        raise Http404
-
     zip_io = io.BytesIO()
     with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as backup_zip:
-        for f in os.listdir(project.get_path()):
-            backup_zip.write(os.path.join(project.get_path(), f), f)
+        for f in os.listdir(os.path.join(settings.PANGENOME_DATA_DIR, pangenome.name)):
+            backup_zip.write(os.path.join(settings.PANGENOME_DATA_DIR, pangenome.name, f), f)
 
     response = HttpResponse(zip_io.getvalue(), content_type='application/x-zip-compressed')
-    response['Content-Disposition'] = 'attachment; filename=%s' % project.slug + ".zip"
+    response['Content-Disposition'] = 'attachment; filename=HOMD_pangenome_%s' % pangenome.name + ".zip"
     response['Content-Length'] = zip_io.tell()
     return response
 
