@@ -5,6 +5,7 @@ import argparse
 import enum
 import datetime
 import zipfile
+import mimetypes
 import io
 
 from django.contrib.auth.decorators import login_required
@@ -91,25 +92,24 @@ def read_file(request, file_path):
     return file_content
 
 def download_pangenome_zip(request, pangenome):
+    """ Make sure <pangenome>.tar.gz file exists! """
     pangenome = get_pangenome(pangenome)
     logger.debug('in pangenomes.py:download_pangenome_zip')
-    view_key = request.GET.get('view_key')
-    if view_key is None:
-        view_key = "no_view_key"
-
-    temp_file = io.BytesIO()
-    db_files = os.listdir(os.path.join(settings.PANGENOME_DATA_DIR, pangenome.name))
-    with zipfile.ZipFile(temp_file, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_file_opened:
-        for f in db_files:
-            temp_file_opened.write(os.path.join(settings.PANGENOME_DATA_DIR, pangenome.name, f), f)
-
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    filename = pangenome.name+'_HOMD_pangenome'+today+'.tar.gz'
+    filepath = os.path.join(settings.PANGENOME_DATA_DIR, pangenome.name, pangenome.name+'.tar.gz')
+    
+    
     #response = HttpResponse(zip_io.getvalue(), content_type='application/x-zip-compressed')
-    response = HttpResponse(
-            temp_file.getvalue(),
-            content_type="application/zip",
-        )
-    response['Content-Disposition'] = 'attachment; filename='+pangenome.name+'_HOMD_pangenome.zip'
-    response['Content-Length'] = temp_file.tell()
+    # Open the file for reading content
+    path = open(filepath, 'rb')
+    # Set the mime type
+    mime_type, _ = mimetypes.guess_type(filepath)
+    # Set the return value of the HttpResponse
+    response = HttpResponse(path, content_type=mime_type)
+    # Set the HTTP header for sending to browser
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    # Return the response value
     return response
 
 def details_pangenome(request, pangenome_name):
