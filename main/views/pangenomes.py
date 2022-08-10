@@ -97,14 +97,19 @@ def download_pangenome_zip(request, pangenome):
     if view_key is None:
         view_key = "no_view_key"
 
-    zip_io = io.BytesIO()
-    with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as backup_zip:
-        for f in os.listdir(os.path.join(settings.PANGENOME_DATA_DIR, pangenome.name)):
-            backup_zip.write(os.path.join(settings.PANGENOME_DATA_DIR, pangenome.name, f), f)
+    temp_file = io.BytesIO()
+    db_files = os.listdir(os.path.join(settings.PANGENOME_DATA_DIR, pangenome.name))
+    with zipfile.ZipFile(temp_file, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_file_opened:
+        for f in db_files:
+            temp_file_opened.write(os.path.join(settings.PANGENOME_DATA_DIR, pangenome.name, f), f)
 
-    response = HttpResponse(zip_io.getvalue(), content_type='application/x-zip-compressed')
-    response['Content-Disposition'] = 'attachment; filename=HOMD_pangenome_%s' % pangenome.name + ".zip"
-    response['Content-Length'] = zip_io.tell()
+    #response = HttpResponse(zip_io.getvalue(), content_type='application/x-zip-compressed')
+    response = HttpResponse(
+            temp_file.getvalue(),
+            content_type="application/zip",
+        )
+    response['Content-Disposition'] = 'attachment; filename='+pangenome.name+'_HOMD_pangenome.zip'
+    response['Content-Length'] = temp_file.tell()
     return response
 
 def details_pangenome(request, pangenome_name):
