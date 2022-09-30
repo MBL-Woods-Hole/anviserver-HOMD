@@ -34,7 +34,8 @@ urlpatterns = [
     #re_path('ajax/(?P<username>\w+)/(?P<project_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler),
     #re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome),
     re_path('ajax_pangenome/(?P<pangenome_slug>\w+)/(?P<view_key>\w+)/(?P<requested_url>.*)', interactive.ajax_handler_pangenome, name='ajax_pangenome'),
-    
+    path('pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
+    path('anviserver/pangenomes', pangenomes.list_pangenomes, name="pangenomes"),
     path('pangenomes/<pangenome>', interactive.show_pangenome_interactive, name="show_pangenome_interactive"),
     path('anviserver/pangenomes/<pangenome>', interactive.show_pangenome_interactive, name="show_pangenome_interactive"),
     

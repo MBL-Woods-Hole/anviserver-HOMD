@@ -85,7 +85,7 @@ def show_pangenome_inspect(request, pangenome, inspection_type):
         view_key = "no_view_key"
     logger.debug('view_key: '+view_key)
     logger.debug('inspection_type: '+inspection_type)
-    logger.debug('id: '+request.GET.get('id'))
+    #logger.debug('id: '+request.GET.get('id'))
     html_page = ''
     if inspection_type == 'inspect':
         html_page = 'charts'
