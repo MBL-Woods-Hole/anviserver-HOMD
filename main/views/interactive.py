@@ -76,6 +76,28 @@ def show_inspect(request, username, project_slug, inspection_type):
                                            'html_page': html_page
                                            })
 
+def show_pangenome_inspect(request, pangenome, inspection_type):
+    logger.debug('IN show_pangenome_inspect')
+    
+    view_key = request.GET.get('view_key')
+    
+    if view_key is None:
+        view_key = "no_view_key"
+    logger.debug('view_key: '+view_key)
+    logger.debug('inspection_type: '+inspection_type)
+    logger.debug('id: '+request.GET.get('id'))
+    html_page = ''
+    if inspection_type == 'inspect':
+        html_page = 'charts'
+    elif inspection_type == 'geneclusters':
+        html_page = 'geneclusters'
+    elif inspection_type == 'inspect_geneclusters':
+        html_page = 'geneclusters'
+    return render(request, 'inspect.html', {'pangenome': pangenome, 
+                                           'view_key': view_key,
+                                           'id': request.GET.get('id'),
+                                           'html_page': html_page
+                                           })
 
 def download_zip(request, username, pangenome):
     #project = get_project(username, project_slug)
