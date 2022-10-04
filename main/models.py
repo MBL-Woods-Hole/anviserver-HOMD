@@ -67,15 +67,15 @@ class Pangenome(models.Model):
         return interactive.Interactive(args)
         
     def synchronize_num_states(self, save=False):
-        logger.debug('in synchronize_num_states')
+        #logger.debug('in synchronize_num_states')
         self.num_states = len(self.get_interactive().states_table.states)
-        logger.debug('self')
-        logger.debug(self)
+        #logger.debug('self')
+        #logger.debug(self)
         if save:
             self.save()
 
     def synchronize_num_collections(self, save=False):
-        logger.debug('in synchronize_num_collections')
+        #logger.debug('in synchronize_num_collections')
         self.num_collections = len(self.get_interactive().collections.collections_dict)
 
         if save:

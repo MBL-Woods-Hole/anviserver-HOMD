@@ -36,7 +36,7 @@ def short_link_redirect(request, short_link_key):
 
 
 def show_interactive(request, username, project_slug):
-    logger.debug('IN show interactive')
+    #logger.debug('IN show interactive')
     
     
     project = get_project(username, project_slug)
@@ -77,14 +77,14 @@ def show_inspect(request, username, project_slug, inspection_type):
                                            })
 
 def show_pangenome_inspect(request, pangenome, inspection_type):
-    logger.debug('IN show_pangenome_inspect')
+    #logger.debug('IN show_pangenome_inspect')
     
     view_key = request.GET.get('view_key')
     
     if view_key is None:
         view_key = "no_view_key"
-    logger.debug('view_key: '+view_key)
-    logger.debug('inspection_type: '+inspection_type)
+    #logger.debug('view_key: '+view_key)
+    #logger.debug('inspection_type: '+inspection_type)
     #logger.debug('id: '+request.GET.get('id'))
     html_page = ''
     if inspection_type == 'inspect':
@@ -101,9 +101,9 @@ def show_pangenome_inspect(request, pangenome, inspection_type):
 
 def download_zip(request, username, pangenome):
     #project = get_project(username, project_slug)
-    logger.debug('In interactive.py:download_zip(request, username, project_slug)')
-    logger.debug('user: '+username)
-    logger.debug('pg: '+pangenome)
+    #logger.debug('In interactive.py:download_zip(request, username, project_slug)')
+    #logger.debug('user: '+username)
+    #logger.debug('pg: '+pangenome)
     pangenome = get_pangenome(pangenome)
     
     view_key = request.GET.get('view_key')
@@ -201,14 +201,14 @@ def test_index(request):
     
 @csrf_exempt
 def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
-    logger.debug('\nSTART AJAX::requested_url: '+requested_url)
+    #logger.debug('\nSTART AJAX::requested_url: '+requested_url)
     username = 'guest'
     
     if not request.is_ajax():
         raise Http404
     read_only = False
     pangenome_obj = get_pangenome(pangenome_slug)
-    logger.debug('pg Name '+pangenome_obj.name)
+    #logger.debug('pg Name '+pangenome_obj.name)
     bottle_request = utils.MockBottleRequest(django_request=request)
     bottle_response = utils.MockBottleResponse()
     
@@ -401,26 +401,26 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
         
     
     elif requested_url.find('data/view/') != -1:
-        logger.debug('got data/view fxn')
+        #logger.debug('got data/view fxn')
         param = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.get_view_data(param), content_type='application/json')
 
     elif requested_url.find('tree/') != -1:
-        logger.debug('got tree fxn')
+        #logger.debug('got tree fxn')
         param = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.get_items_order(param), content_type='application/json')
 
     elif requested_url.find('data/collections') != -1:
-        logger.debug('got data/collections fxn')
+        #logger.debug('got data/collections fxn')
         return HttpResponse(bottleapp.get_collections(), content_type='application/json')
 
     elif requested_url.find('data/collection/') != -1:
-        logger.debug('got data/collection/ fxn')
+        #logger.debug('got data/collection/ fxn')
         param = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.get_collection_dict(param), content_type='application/json')
 
     elif requested_url.find('store_collection') != -1:
-        logger.debug('got store_collection fxn')
+        #logger.debug('got store_collection fxn')
         # if not check_write_permission(pangenome_obj, request.user):
 #             raise Http404
 
@@ -429,84 +429,84 @@ def ajax_handler_pangenome(request, pangenome_slug, view_key, requested_url):
         return ret
 ########### ADDED ###########################################
     elif requested_url.endswith('data/search_functions'):
-        logger.debug('got search fxn')
+        #logger.debug('got search fxn')
         return HttpResponse(bottleapp.search_functions(), content_type='application/json')
     elif requested_url.endswith('data/news'):
-        logger.debug('got news fxn')
+        #logger.debug('got news fxn')
         return HttpResponse(bottleapp.get_news(), content_type='application/json')
     elif requested_url.endswith('data/check_homogeneity_info'):
-        logger.debug('got check_homogeneity_info fxn')
+        #logger.debug('got check_homogeneity_info fxn')
         return HttpResponse(bottleapp.check_homogeneity_info(), content_type='application/json')
     elif requested_url.endswith('data/filter_gene_clusters'):
-        logger.debug('got filter_gene_clusters fxn')
+        #logger.debug('got filter_gene_clusters fxn')
         return HttpResponse(bottleapp.filter_gene_clusters(), content_type='application/json')
     elif requested_url.endswith('data/save_tree'):
-        logger.debug('got filter_gene_clusters fxn')
+        #logger.debug('got filter_gene_clusters fxn')
         return HttpResponse(bottleapp.save_tree(), content_type='application/json')
 ###############################################################    
     elif requested_url.find('data/contig') != -1:
-        logger.debug('got data/contig fxn')
+        #logger.debug('got data/contig fxn')
         param = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.get_sequence_for_split(param), content_type='application/json')
 
     elif requested_url.find('store_description') != -1:
-        logger.debug('got store_description fxn')
+        #logger.debug('got store_description fxn')
         # if not check_write_permission(pangenome_obj, request.user):
 #             raise Http404
 
         return HttpResponse(bottleapp.store_description(), content_type='application/json')
 
     elif requested_url.find('state/all') != -1:
-        logger.debug('got state/all fxn')
+        #logger.debug('got state/all fxn')
         return HttpResponse(bottleapp.state_all(), content_type='application/json')
 
     elif requested_url.find('state/get') != -1:
-        logger.debug('got state/get fxn')
+        #logger.debug('got state/get fxn')
         param = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.get_state(param), content_type='application/json')
 
     elif requested_url.find('state/save') != -1:
-        logger.debug('got state/save fxn')
+        #logger.debug('got state/save fxn')
         #if not check_write_permission(pangenome_obj, request.user):
         #    raise Http404
 
         param = requested_url.split('/')[-1]
-        logger.debug('param: '+param)
+        #logger.debug('param: '+param)
         ret = HttpResponse(bottleapp.save_state(param), content_type='application/json')
         pangenome_obj.synchronize_num_states(save=True)
         return ret
 
     elif requested_url.find('data/charts') != -1:
-        logger.debug('got data/charts fxn')
+        #logger.debug('got data/charts fxn')
         order_name = requested_url.split('/')[-2]
         item_name = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.charts(order_name, item_name), content_type='application/json')
 
     elif requested_url.find('geneclusters') != -1:
-        logger.debug('got geneclusters fxn')
+        #logger.debug('got geneclusters fxn')
         order_name = requested_url.split('/')[-2]
         item_name = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.inspect_gene_cluster(order_name, item_name), content_type='application/json')
 
     elif requested_url.find('get_AA_sequences_for_gene_cluster') != -1:
-        logger.debug('got get_AA_sequences_for_gene_cluster fxn')
+        #logger.debug('got get_AA_sequences_for_gene_cluster fxn')
         param = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.get_AA_sequences_for_gene_cluster(param), content_type='application/json')
 
    
     elif requested_url.find('data/gene') != -1:
-        logger.debug('got data/gene fxn')
+        #logger.debug('got data/gene fxn')
         param = requested_url.split('/')[-1]
         return HttpResponse(bottleapp.get_sequence_for_gene_call(param), content_type='application/json')
 
     elif requested_url.endswith('data/completeness'):
-        logger.debug('got data/completeness fxn')
+        #logger.debug('got data/completeness fxn')
         return HttpResponse(bottleapp.completeness(), content_type='application/json')
 
     elif requested_url.find('reroot_tree') != -1:
-        logger.debug('got reroot_tree fxn')
+        #logger.debug('got reroot_tree fxn')
         return HttpResponse(bottleapp.reroot_tree(), content_type='application/json')
-    logger.debug('missed')
+    #logger.debug('missed')
     #return JsonResponse(obj2)
     raise Http404
 
