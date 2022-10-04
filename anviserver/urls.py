@@ -53,7 +53,7 @@ urlpatterns = [
     
     path('pangenomes/<pangenome>/download', pangenomes.download_pangenome_zip, name="download_pangenome_zip"),
     path('anviserver/pangenomes/<pangenome>/download', pangenomes.download_pangenome_zip, name="download_pangenome_zip"),
-    
+    path('index_homd', index.show_index),
     re_path(r'^$', index.show_index, name='index'),
 ]
 
