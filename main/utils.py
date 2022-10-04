@@ -43,7 +43,10 @@ def get_project(username, project_slug):
     return get_object_or_404(Project, user__username=username, slug=project_slug)
 
 def get_pangenome(pangenome_name):
-    return Pangenome(pangenome_name)
+    pg = Pangenome()
+    #pg = get_object_or_404(Project, user__username='guest', slug=pangenome_name)
+    pg.set_name(pangenome_name)
+    return pg
     
     
 def put_project_file(project_path, file_name, content):

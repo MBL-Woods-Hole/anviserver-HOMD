@@ -20,20 +20,40 @@ logger.setLevel(logging.DEBUG)
 def generate_random_pk():
     return random.SystemRandom().getrandbits(32)
 
-class Pangenome:
-    def __init__(self, name):
+class Pangenome(models.Model):
+    num_states = models.IntegerField(default=0)
+    num_collections = models.IntegerField(default=0)
+    name = models.CharField(max_length=100)
+    user = 'guest'  #models.ForeignKey(User, default=1)
+    slug = models.CharField(max_length=100)
+    is_public = models.BooleanField(default=False)
+    secret = models.CharField(max_length=64)
+    short_link_key = models.CharField(max_length=32, default=get_random_string(length=6))
+    created_at = models.DateTimeField(auto_now_add=True)
+    num_leaves = models.IntegerField(default=0)
+    num_layers = models.IntegerField(default=0)
+
+    def __str__(self):
+        return 'Pangenome ' + str(self.name) + ' (Created By: ' + str(self.user) + ')'
+    # def __init__(self, name):
+#        self.name = name
+    def set_name(self, name=None):
         self.name = name
-    
+        
     def get_path(self):
         return settings.PANGENOME_DATA_DIR
         
-    def get_file_path(self, filename, genome):
+    def get_file_path(self, filename, genome, default=None, dont_check_exists=False):
         full_path = os.path.join(self.get_path(), genome, filename)
-
+        if dont_check_exists:
+            return full_path
         if os.path.exists(full_path):
             return full_path
         
         return default
+        
+    def get_description(self):
+        return self.get_interactive().p_meta['description']
         
     def get_interactive(self, read_only=True):
         args = argparse.Namespace()
@@ -44,15 +64,22 @@ class Pangenome:
         args.skip_init_functions    = False
         args.additional_layers      = None
         args.items_order            = None
-        
-        
-#         args.additional_layers      = self.get_file_path('additional-layers.txt', default=None)
-        
-        #logger.debug('in models(Pangenome): returning interactive.Interactive(args)') 
-        # this runs anvio interactive  
-        
         return interactive.Interactive(args)
+        
+    def synchronize_num_states(self, save=False):
+        logger.debug('in synchronize_num_states')
+        self.num_states = len(self.get_interactive().states_table.states)
+        logger.debug('self')
+        logger.debug(self)
+        if save:
+            self.save()
 
+    def synchronize_num_collections(self, save=False):
+        logger.debug('in synchronize_num_collections')
+        self.num_collections = len(self.get_interactive().collections.collections_dict)
+
+        if save:
+            self.save()
 # 	class Guest(models.Model):
 # 		user = models.OneToOneField(User, on_delete=models.CASCADE)
 # 		department = models.CharField(max_length=200)
@@ -60,48 +87,61 @@ class Pangenome:
 # 		def __str__(self):
 # 			return self.user.username        
 class Project(models.Model):
-    pass
-    # user = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
-#     name = models.CharField(max_length=100)
-#     slug = models.CharField(max_length=100)
-#     is_public = models.BooleanField(default=False)
-#     secret = models.CharField(max_length=64)
-#     short_link_key = models.CharField(max_length=32, default=get_random_string(length=6))
-#     created_at = models.DateTimeField(auto_now_add=True, null=True)
-# 
-#     num_leaves = models.IntegerField(default=0)
-#     num_layers = models.IntegerField(default=0)
-# 
-#     num_states = models.IntegerField(default=0)
-#     num_collections = models.IntegerField(default=0)
-#     def __str__(self):
-#         return 'Project ' + str(self.name) + ' (Created By: ' + str(self.user) + ')'
-# 
-#     def get_path(self):
-#         return os.path.join(settings.USER_DATA_DIR, self.user.username, self.secret)
-# 
-#     def get_file_path(self, filename, default=None, dont_check_exists=False):
-#         full_path = os.path.join(self.get_path(), filename)
-#         
-#         if dont_check_exists:
-#             return full_path
-# 
-#         if os.path.exists(full_path):
-#             return full_path
-#         
-#         return default
-# 
-#     def delete_project_path(self):
-#         shutil.rmtree(self.get_path())
-# 
-#     def create_project_path(self):
-#         os.makedirs(self.get_path())
-# 
-#     def get_description(self):
-#         return self.get_interactive().p_meta['description']
-# 
-#     def get_interactive(self, read_only=True):
-#         args = argparse.Namespace()
+    
+    user = models.ForeignKey(User, default=1, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    slug = models.CharField(max_length=100)
+    is_public = models.BooleanField(default=False)
+    secret = models.CharField(max_length=64)
+    short_link_key = models.CharField(max_length=32, default=get_random_string(length=6))
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+
+    num_leaves = models.IntegerField(default=0)
+    num_layers = models.IntegerField(default=0)
+
+    num_states = models.IntegerField(default=0)
+    num_collections = models.IntegerField(default=0)
+    def __str__(self):
+        return 'Project ' + str(self.name) + ' (Created By: ' + str(self.user) + ')'
+    
+    def set_name(self, name=None):
+        self.name = name
+        
+    def get_path(self):
+        return os.path.join(settings.USER_DATA_DIR, self.user.username, self.secret)
+
+    def get_file_path(self, filename, default=None, dont_check_exists=False):
+        full_path = os.path.join(self.get_path(), filename)
+        
+        if dont_check_exists:
+            return full_path
+
+        if os.path.exists(full_path):
+            return full_path
+        
+        return default
+
+    def delete_project_path(self):
+        shutil.rmtree(self.get_path())
+
+    def create_project_path(self):
+        os.makedirs(self.get_path())
+
+    def get_description(self):
+        return self.get_interactive().p_meta['description']
+
+    def get_interactive(self, read_only=True):
+        args = argparse.Namespace()
+        args.read_only = read_only
+        args.mode = 'pan'
+        args.pan_db                 = self.get_file_path('PAN.db', self.name)
+        args.genomes_storage        = self.get_file_path('GENOMES.db', self.name)
+        args.skip_init_functions    = False
+        args.additional_layers      = None
+        args.items_order            = None
+        return interactive.Interactive(args)
+        
+        # args = argparse.Namespace()
 #         args.read_only = read_only
 # 
 #         if self.get_file_path('pan.db', default=None):
@@ -128,18 +168,18 @@ class Project(models.Model):
 #         # this runs anvio interactive  
 #         
 #         return interactive.Interactive(args)
-# 
-#     def synchronize_num_states(self, save=False):
-#         self.num_states = len(self.get_interactive().states_table.states)
-# 
-#         if save:
-#             self.save()
-# 
-#     def synchronize_num_collections(self, save=False):
-#         self.num_collections = len(self.get_interactive().collections.collections_dict)
-# 
-#         if save:
-#             self.save()
+
+    def synchronize_num_states(self, save=False):
+        self.num_states = len(self.get_interactive().states_table.states)
+
+        if save:
+            self.save()
+
+    def synchronize_num_collections(self, save=False):
+        self.num_collections = len(self.get_interactive().collections.collections_dict)
+
+        if save:
+            self.save()
 
 
 class ProjectLink(models.Model):
