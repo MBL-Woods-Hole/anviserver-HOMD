@@ -41,9 +41,11 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                {% if site == 'development' %}
+                {% if site == 'production' %}
+                xxx
                    <a title='HOMD-home' class="navbar-brand" href="https://vamps.mbl.edu/anviserver/"><img src="{% static 'img/logo.png' %}" alt="Home" /></a>
                 {% else %}
+                x
                   <a title='home' class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'img/logo.png' %}" alt="Home" /></a>
                 {% endif%}
             </div>
