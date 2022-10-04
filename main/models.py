@@ -23,8 +23,8 @@ def generate_random_pk():
 class Pangenome(models.Model):
     num_states = models.IntegerField(default=0)
     num_collections = models.IntegerField(default=0)
-    name = models.CharField(max_length=100)
-    user = 'guest'  #models.ForeignKey(User, default=1)
+    name = models.CharField(max_length=100, default='DEFAULT VALUE', blank=True, null=True)
+    #user = 'guest'  #models.ForeignKey(User, default=1)
     slug = models.CharField(max_length=100)
     is_public = models.BooleanField(default=False)
     secret = models.CharField(max_length=64)
