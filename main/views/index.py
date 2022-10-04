@@ -1,8 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.conf import settings
 
 def show_index(request):
-    return render(request, 'index.html')
+    print(settings.ENV)
+    if settings.ENV == 'production':
+        return render(request, 'anviserver/index.html')
+    else:
+        return render(request, 'index.html')
 
 def show_error_page(request, exception):
     return render(request, 'error.html')
