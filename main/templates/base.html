@@ -41,8 +41,11 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a title='home' class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'img/logo.png' %}" alt="Home" /></a>
-            
+                {% if site == 'development' %}
+                   <a title='HOMD-home' class="navbar-brand" href="https://vamps.mbl.edu/anviserver/"><img src="{% static 'img/logo.png' %}" alt="Home" /></a>
+                {% else %}
+                  <a title='home' class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'img/logo.png' %}" alt="Home" /></a>
+                {% endif%}
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
