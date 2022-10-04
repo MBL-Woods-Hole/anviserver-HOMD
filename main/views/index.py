@@ -5,7 +5,7 @@ from django.conf import settings
 def show_index(request):
     print(settings.ENV)
     if settings.ENV == 'production':
-        return render(request, 'anviserver/index.html')
+        return render(request, 'index_homd.html')
     else:
         return render(request, 'index.html')
 
