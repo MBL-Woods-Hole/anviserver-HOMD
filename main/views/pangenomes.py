@@ -63,7 +63,8 @@ def list_pangenomes(request):
     
     context = {
        # 'pangenomes': Pangenome.objects,
-        'pangenomes': pgobj
+        'pangenomes': pgobj,
+        'site': settings.ENV
     }
     return render(request, 'pangenomes/list.html', context)
 
