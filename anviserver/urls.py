@@ -40,7 +40,7 @@ urlpatterns = [
     path('anviserver/pangenomes/<pangenome>', interactive.show_pangenome_interactive, name="show_pangenome_interactive"),
     
     #path('pangenomes/<pangenome>', interactive.anvi_display_pan_testing, name="anvi_display_pan_testing"),
-    re_path(r'^(?P<pangenome>\w+)/(?P<inspection_type>\w+)', interactive.show_pangenome_inspect),
+###    re_path(r'^(?P<pangenome>\w+)/(?P<inspection_type>\w+)', interactive.show_pangenome_inspect),
     #path('anviserver/<pangenome>/<inspection_type>', interactive.show_pangenome_inspect, name="show_pangenome_inspect"),
     #path('anviserver/pangenomes/<pangenome>/<inspection_type>', interactive.show_pangenome_inspect, name="show_pangenome_inspect"),
     
